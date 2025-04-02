@@ -1,0 +1,15 @@
+pandas
+numpy
+scipy
+scikit-learn
+matplotlib
+seaborn
+pyyaml
+jupyter
+ipykernel
+openpyxl
+statsmodels
+Prophet
+torch
+xgboost
+optuna
