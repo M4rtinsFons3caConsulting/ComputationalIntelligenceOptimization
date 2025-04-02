@@ -15,10 +15,6 @@ class Team:
         self.cash = 750
         self.roles = ['GK', 'DEF', 'DEF', 'MID', 'MID', 'FWD', 'FWD']
 
-    get_player
-
-
-
 
 # We can draft each team at a time,
 # We can draft each position at a time,
@@ -27,8 +23,6 @@ class Team:
 # We need to have some random starting setup, that is valid
 # Then we just move pair wise between any two teams, ofc easiset option
 # To speed it up we should probably create a tabu system, that checks if ignoring the team numbers, a specific ordering had been done
-# 
-#
 
 # added this here for now
 class Solver:

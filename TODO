@@ -1,0 +1,2 @@
+# TODO: implement Cython on the current bitwise checking algorithm.
+# TODO: as part of Solver class implement method for checking if bitwise has been seen
