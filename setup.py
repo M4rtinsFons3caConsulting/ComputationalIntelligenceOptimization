@@ -14,14 +14,14 @@ def read_requirements():
         raise FileNotFoundError("Error: 'requirements.txt' not found. Please ensure the file exists in the project directory.")
 
 setup(
-    name='src',
+    name='cifo',
     version='0.1',
-    description='A Genetic Algorithm Implementation',
+    description='A Genetic Algorithm Framework',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    #author='Group 69',
+    author='AI',
     author_email='r2015469@novaims.unl.pt',
-    #url='https://github.com/M4rtinsFons3caConsulting/Comp',
+    url='https://github.com/M4rtinsFons3caConsulting/ComputationalIntelligenceOptimization',
     license='MIT',
     packages=find_packages(where='src'),
     package_dir={'': 'src'},

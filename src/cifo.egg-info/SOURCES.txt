@@ -1,0 +1,9 @@
+README.md
+setup.py
+src/cifo.egg-info/PKG-INFO
+src/cifo.egg-info/SOURCES.txt
+src/cifo.egg-info/dependency_links.txt
+src/cifo.egg-info/requires.txt
+src/cifo.egg-info/top_level.txt
+src/classes/__init__.py
+src/classes/player.py
