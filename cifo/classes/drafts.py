@@ -1,24 +1,76 @@
+import constants as c
+import pandas as pd
+import numpy as np
+from utils import PrimeGen
+
 # Each player is defined by the following attributes: 
+#  ●   A name that uniquely identifies them 
 #  ●   Skill rating: Represents the player's ability. 
 #  ●   Cost: The player's salary. 
 #  ●   Position:  One  of  four  roles:  Goalkeeper  (GK),  Defender  (DEF),  Midfielder  (MID),  or Forward (FWD).
 
-class Player:
-    def __init__(self, skill, salary, position):
-        self.skill = skill
-        self.salary = salary
-        self.position = position
+# Algorithm
+
+# First derive the largest possible number of teams given the available data
+
+# assign each team a unique identifying prime number
+# assign each player a unique identifying number (skip the prime numbers chosen for each team)
 
 
-class Team:
-    def __init__(self):
-        self.cash = 750
-        self.roles = ['GK', 'DEF', 'DEF', 'MID', 'MID', 'FWD', 'FWD']
+class Solver:
+    def __init__():
+        pass
+    def check_sum():
+        pass
+    def check_fitness():
+        pass
+    def update_tabu():
+        pass
+    # PERhaps select a number from 1 to 35, and assign
+    
+class Solution:
+    def __init__(self, space_shape, data):
+
+        # Set the space as empty
+        self.solution = np.empty(space_shape)
+        
+        prime_ids = PrimeGen()
+
+        # Assign unique id's to each parent, child
+        for i in range(space_shape[0]):
+            self.solution[i][0], skip_prime = prime_ids.get_prime() # Associate a prime number to each team
+            for j in range(1, space_shape[1]): # Skip the team column
+                id_number = j
+                if (id_number == skip_prime):
+                    id_number += 1 # Associate a number to each spot on each team
+                self.solution[i][j] = id_number
+                
+                
+
+    def assign_child():
+        pass  
+    
 
 
-# We can draft each team at a time,
+def main():
+    # Get data path
+    data = pd.read_excel(c.DATA_SOURCE, index_col='Unnamed: 0')
+
+    # Get optimizer arguments
+    args = c.OPTIMIZER_ARGS
+
+    # Set an initial solution
+    solution = Solution(c.SOLUTION_SPACE_SHAPE, data)
+
+
+
+
+if __name__ == "__main__":
+    main()
+
+
+
 # We can draft each position at a time,
-# oH OH , i got it
 
 # We need to have some random starting setup, that is valid
 # Then we just move pair wise between any two teams, ofc easiset option
@@ -59,7 +111,6 @@ print(solver.is_new_combination([2, 4, 6]))  # True (new combination)
 #  a mutation is larger than 750, if that happens just rerool the mutaiton
 # 
 # after getting a player, just subtract their cost from cash, if cash goes below zero, reroll?
-
 
 
 

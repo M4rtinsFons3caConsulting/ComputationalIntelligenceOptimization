@@ -1,0 +1,27 @@
+Metadata-Version: 2.2
+Name: cifo
+Version: 0.1
+Summary: A Genetic Algorithm Framework
+Home-page: https://github.com/M4rtinsFons3caConsulting/ComputationalIntelligenceOptimization
+Author: AI
+Author-email: r2015469@novaims.unl.pt
+License: MIT
+Description-Content-Type: text/markdown
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: openpyxl
+Requires-Dist: cython
+Requires-Dist: setuptools
+Requires-Dist: ipython
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: summary
+
+# ComputationalIntelligenceOptimization
+
+To install this package ensure that you are running from within the root folder, call 'pip install .'. Ensure that you have setuptools installed before proceeding.

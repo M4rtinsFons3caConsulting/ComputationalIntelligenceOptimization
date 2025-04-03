@@ -1,12 +1,21 @@
 import os
+import subprocess
 
+# Ensure required dependencies are installed before proceeding
 try:
     from setuptools import setup, find_packages, Extension
 except ImportError:
-    raise ImportError("Error: 'setuptools' is required but not installed. Please install 'setuptools' to proceed.")
+    subprocess.check_call(["pip", "install", "setuptools"])
+    from setuptools import setup, find_packages, Extension  # Retry import
+
+try:
+    from Cython.Build import cythonize
+except ImportError:
+    subprocess.check_call(["pip", "install", "Cython"])
+    from Cython.Build import cythonize  # Retry import
 
 
-# Finds all instances of '.pyx' files inside of '/cifo'
+# Finds all instances of '.pyx' files inside 'cifo'
 def find_pyx_files(package_dir="cifo"):
     """Find all .pyx files in the package and return them as Extension modules."""
     pyx_files = []
@@ -19,16 +28,15 @@ def find_pyx_files(package_dir="cifo"):
     return pyx_files
 
 
-# Lazy loading cython
-def get_cythonize():
+def read_requirements():
     try:
-        from Cython.Build import cythonize
-        return cythonize
-    except ImportError:
-        raise ImportError("Cython is required but has not installed successfully. You may have to install it manually.")
+        with open('requirements.txt') as f:
+            return f.read().splitlines()
+    except FileNotFoundError:
+        raise FileNotFoundError("Error: 'requirements.txt' not found. Please ensure the file exists in the project directory.")
 
 
-# General setup file, reads from requirements
+# General setup file
 setup(
     name='cifo',
     version='0.1',
@@ -41,8 +49,6 @@ setup(
     license='MIT',
     packages=find_packages(where='cifo'),
     package_dir={'': 'cifo'},
-    install_requires=[
-        'Cython'
-    ],
-    ext_modules=get_cythonize()(find_pyx_files("cifo")), # this calls the lazy loading of cythonize
+    install_requires=read_requirements(),
+    ext_modules=cythonize(find_pyx_files("cifo")),
 )
