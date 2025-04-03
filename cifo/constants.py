@@ -1,15 +1,15 @@
-DATA_SOURCE =  "../data/player_data.xlsx"
+# DATA SOURCE
+PATH =  "../data/player_data.xlsx"
 
-PRIMES = [
-    2, 3, 5, 7, 11
-    , 13, 17, 19, 23
-    , 29, 31, 37, 41
-    , 43, 47, 53, 59
-    , 61, 67, 71, 73
-    , 79, 83, 89, 97
-]
 
-SOLUTION_SPACE_SHAPE = (4, 8)
+# CONSTRAINT SET
+ON = 'position'
+PARTITIONS = {
+    'GK' : 1
+    , 'DEF' : 2
+    , 'MID' : 2
+    , 'FWD' : 2
+}
 
-OPTIMIZER_ARGS = None
 
+SOLVER_ARGS = None

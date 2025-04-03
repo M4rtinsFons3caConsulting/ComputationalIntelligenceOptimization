@@ -6,4 +6,8 @@ cifo/cifo.egg-info/dependency_links.txt
 cifo/cifo.egg-info/requires.txt
 cifo/cifo.egg-info/top_level.txt
 cifo/classes/__init__.py
-cifo/classes/drafts.py
+cifo/classes/solution.py
+cifo/classes/solver.py
+cifo/utils/__init__.py
+cifo/utils/_classes.py
+cifo/utils/_functions.py
