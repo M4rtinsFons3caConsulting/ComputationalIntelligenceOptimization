@@ -1,28 +1,45 @@
-from pandas import read_excel
-
-from classes.solution import Solution
+import pandas as pd
 from classes.solver import Solver
+from constants import PATH, ON, PARTITIONS, WEIGHTS, SOLVER_KWARGS
 
-from constants import PATH, ON, PARTITIONS, SOLVER_ARGS
+
+def load_data(path: str) -> tuple[pd.Series, pd.DataFrame]:
+    """
+    Load data from an Excel file and extract labels and weights.
+
+    Parameters:
+    - path (str): Path to the Excel file.
+
+    Returns:
+    - labels (pd.Series): Target labels extracted from the dataset.
+    - weights (pd.DataFrame): Feature weights extracted from the dataset.
+    """
+    try:
+        data = pd.read_excel(path, index_col='Unnamed: 0')
+
+        # Extract required columns and return as NumPy arrays
+        labels = data[ON].to_numpy()
+        weights = data[WEIGHTS].to_numpy()
+
+        return labels, weights
+
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Error: File not found at {path}")
+    except KeyError as e:
+        raise KeyError(f"Missing required column in dataset: {e}")
+    except Exception as e:
+        raise RuntimeError(f"Error loading data: {e}")
+
 
 def main():
-    # Get data path
-    data = read_excel(PATH, index_col='Unnamed: 0')
+    """Main execution routine."""
+    labels, weights = load_data(PATH)
 
-    # Get optimizer arguments
-    args = SOLVER_ARGS
-
-    # Find the shape of the data given the constraints on the partitions
-    shape = Solution.find_shape(data, ON, PARTITIONS)
+    # Initialize and solve, no need to pass global constants explicitly
+    final_solution = Solver(labels, weights, ON, PARTITIONS, SOLVER_KWARGS)
     
-    # Setting up checksum Id's
-    checksums = Solver.get_checksums(shape)
-
-    # Set an initial solution
-    initial_solution = Solution(shape, checksums, data)
-
-    # Solve for the given arguments
-    final_solution = Solver(data, initial_solution, SOLVER_ARGS)
+    # Print result
+    print(final_solution)
 
 
 if __name__ == "__main__":

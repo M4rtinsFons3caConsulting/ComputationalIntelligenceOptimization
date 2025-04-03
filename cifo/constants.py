@@ -1,9 +1,9 @@
 # DATA SOURCE
 PATH =  "../data/player_data.xlsx"
 
-
 # CONSTRAINT SET
 ON = 'position'
+
 PARTITIONS = {
     'GK' : 1
     , 'DEF' : 2
@@ -11,5 +11,14 @@ PARTITIONS = {
     , 'FWD' : 2
 }
 
+WEIGHTS = [
+    'ability'
+    , 'cost'
+]
 
-SOLVER_ARGS = None
+SOLVER_KWARGS = {
+    'n' : 100
+    , '0_m' : 0.05
+    , '0_c' : .5
+    , 'd_ma' : 1e-5
+}
