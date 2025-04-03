@@ -2,6 +2,7 @@ from numpy import empty, inf, sum
 from typing import Dict
 import pandas as pd
 
+
 class Solution:
     @staticmethod 
     def find_shape(data: pd.DataFrame, on: str, partition: Dict[str, int]) -> tuple:
@@ -30,6 +31,7 @@ class Solution:
         return shape
     
     def __init__(self, shape: tuple, data: pd.DataFrame) -> None:
+        
         self.solution = empty(shape)
         self.data = data
 

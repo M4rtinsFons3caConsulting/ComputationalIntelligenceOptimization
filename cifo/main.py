@@ -3,7 +3,6 @@ from pandas import read_excel
 from classes.solution import Solution
 from classes.solver import Solver
 
-from utils._classes import PrimeGen
 from constants import PATH, ON, PARTITIONS, SOLVER_ARGS
 
 def main():
@@ -16,8 +15,11 @@ def main():
     # Find the shape of the data given the constraints on the partitions
     shape = Solution.find_shape(data, ON, PARTITIONS)
     
+    # Setting up checksum Id's
+    checksums = Solver.get_checksums(shape)
+
     # Set an initial solution
-    initial_solution = Solution(shape, data)
+    initial_solution = Solution(shape, checksums, data)
 
     # Solve for the given arguments
     final_solution = Solver(data, initial_solution, SOLVER_ARGS)
