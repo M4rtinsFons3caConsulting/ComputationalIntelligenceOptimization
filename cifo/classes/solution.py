@@ -2,9 +2,11 @@ import numpy as np
 import pandas as pd
 
 class Solution:
-    def __init__(self, solution_array: np.ndarray) -> None:
+    def __init__(self, solution_array: np.ndarray, data: pd.DataFrame) -> None:
 
         self.solution = solution_array
+        self.data = data
+        self.valid_solution = True
         self.fitness = self.calculate_fitness()
         
     def __repr__(self):
@@ -36,11 +38,7 @@ class Solution:
             start_col = end_col
         
         return cls(seed_matrix)
-
-    def __init__(self, shape: tuple, data: pd.DataFrame) -> None:
-        self.solution = np.empty(shape)
-        self.data = data
-        self.valid_solution = True
+    
 
     def get_cost(self):
         for row in self.solution:
