@@ -1,5 +1,6 @@
 from classes.solution import Solution
 
+
 class Solver:
     def __init__(self, labels, weights, on, partition, **kwargs):
         # Labels, weights and args
