@@ -36,3 +36,24 @@ class Solution:
             start_col = end_col
         
         return cls(seed_matrix)
+
+    def __init__(self, shape: tuple, data: pd.DataFrame) -> None:
+        self.solution = np.empty(shape)
+        self.data = data
+        self.valid_solution = True
+
+    def get_cost(self):
+        for row in self.solution:
+            if sum(
+                self.data[int(index), -1] for index in row
+            ) > 750:
+                self.valid_solution = False
+                return 'Invalid solution'
+            
+
+    def get_league_std_dev(self):
+        return np.std([
+            np.mean(
+                [self.data[int(index), -2] for index in row]
+            ) for row in self.solution
+        ])
