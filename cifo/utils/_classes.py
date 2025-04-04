@@ -1,7 +1,10 @@
 import pandas as pd
 
 class Preprocessor:
-    def __init__(self, data, weights, on, ):
+    def __init__(self, path, weights, on, partitions):
+        self.data = path
+        self.parition_on = on
+        self.partitions = partitions
 
     def load_data(path: str) -> tuple[pd.Series, pd.DataFrame]:
         """
@@ -25,6 +28,21 @@ class Preprocessor:
             raise KeyError(f"Missing required column in dataset: {e}")
         except Exception as e:
             raise RuntimeError(f"Error loading data: {e}")
-        
+    
+    def get_weights():
+        # Reset the indices to obtain a unique Id
+        data.reset_index(inplace=True)
 
-processed_data = Processor
+        # Define the custom order based on the PARTITIONS dictionary keys
+        custom_order = list(PARTITIONS.keys())
+
+        # Set the custom order in the 'position' column using pd.Categorical
+        data['Position'] = pd.Categorical(
+            data['Position']
+            , categories=custom_order
+            , ordered=True
+            )
+
+        # Sort data by Position
+        data = data.sort_values(by='Position').to_numpy()
+
