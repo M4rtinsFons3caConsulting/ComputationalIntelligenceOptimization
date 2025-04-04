@@ -12,7 +12,6 @@ class Solution:
     def __repr__(self):
         return f"Solution with : {self.fitness}" 
 
-
     def calculate_fitness(self):
         # TODO: implement fitness calculating logic 
         return self.fitness
@@ -24,7 +23,7 @@ class Solution:
             return True
         
     @classmethod
-    def initialize_random_solution(cls, seed_matrix, constraints):
+    def initialize(cls, seed_matrix, constraints):
         
         start_col = 0
             
