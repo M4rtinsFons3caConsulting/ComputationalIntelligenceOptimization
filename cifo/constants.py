@@ -2,7 +2,7 @@
 PATH =  "../data/player_data.xlsx"
 
 # CONSTRAINT SET
-LABELS = 'position'
+LABELS = 'Position'
 
 CONSTRAINTS = {
     'GK' : 1
@@ -12,8 +12,8 @@ CONSTRAINTS = {
 }
 
 WEIGHTS = [
-    'ability'
-    , 'cost'
+    'Skill'
+    , 'Salary (â‚¬M)'
 ]
 
 # SOLVER ARGUMENTS
