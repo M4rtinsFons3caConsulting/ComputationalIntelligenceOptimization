@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 class Solution:
-    def __init__(self, solution_array: np.ndarray, data: pd.DataFrame) -> None:
+    def __init__(self, solution_array: np.ndarray, data: pd.DataFre) -> None:
 
         self.solution = solution_array
         self.data = data
@@ -16,7 +16,8 @@ class Solution:
         # TODO: implement fitness calculating logic 
         return self.fitness
     
-    def validate_solution(solution: np.ndarray) -> bool:
+
+    def validate_solution() -> bool:
         if True:
             return False
         else:
@@ -38,6 +39,19 @@ class Solution:
         
         return cls(seed_matrix)
     
+
+    @classmethod
+    def reproduce(cls, parent_1, parent_2, constraints):
+        pass 
+        # manipulate parents
+        indiv_matrix = None
+        individual = cls(indiv_matrix)
+
+        if individual.validate_solution():
+            return individual
+        else: 
+            return None
+
 
     def get_cost(self):
         for row in self.solution:

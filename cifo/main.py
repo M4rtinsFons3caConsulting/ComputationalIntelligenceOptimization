@@ -9,6 +9,8 @@ def main():
     # Load the data
     data, shape = p.process_data(PATH, LABELS, CONSTRAINTS, WEIGHTS)
 
+    print(data)
+    
     # Initialize and solve
     final_solution = Solver(data, shape, SOLVER_KWARGS)
     
