@@ -1,48 +1,34 @@
 import pandas as pd
+import numpy as np
+from typing import Dict, Tuple
+
 
 class Preprocessor:
-    def __init__(self, path, weights, on, partitions):
-        self.data = path
-        self.parition_on = on
-        self.partitions = partitions
 
-    def load_data(path: str) -> tuple[pd.Series, pd.DataFrame]:
-        """
-        Load data from an Excel file and extract labels and weights.
+    @staticmethod
+    def load_data(path: str, on: str, weights: list[str]) -> np.ndarray:
+        """Load and return sorted label and weights as NumPy array."""
+        df = pd.read_excel(path, index_col='Unnamed: 0')
+        df = df.sort_values(by=on)
+        return df[[on] + weights].to_numpy()
 
-        Parameters:
-        - path (str): Path to the Excel file.
+    @staticmethod
+    def get_shape(labels: np.ndarray, partitions: Dict[str, int]) -> Tuple[int, int]:
+        """Compute solution shape based on label counts and partitions."""
+        values, counts = np.unique(labels, return_counts=True)
+        label_counts = dict(zip(values, counts))
 
-        Returns:
-        - labels (pd.Series): Target labels extracted from the dataset.
-        - weights (pd.DataFrame): Feature weights extracted from the dataset.
-        """
-        try:
-            data = pd.read_excel(path, index_col='Unnamed: 0')
+        min_set = np.inf
+        for key, value in partitions.items():
+            cur_min = label_counts.get(key, 0) / value
+            min_set = min(min_set, cur_min)
 
-            return data
-        
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Error: File not found at {path}")
-        except KeyError as e:
-            raise KeyError(f"Missing required column in dataset: {e}")
-        except Exception as e:
-            raise RuntimeError(f"Error loading data: {e}")
-    
-    def get_weights():
-        # Reset the indices to obtain a unique Id
-        data.reset_index(inplace=True)
+        return int(min_set), sum(partitions.values())
 
-        # Define the custom order based on the PARTITIONS dictionary keys
-        custom_order = list(PARTITIONS.keys())
-
-        # Set the custom order in the 'position' column using pd.Categorical
-        data['Position'] = pd.Categorical(
-            data['Position']
-            , categories=custom_order
-            , ordered=True
-            )
-
-        # Sort data by Position
-        data = data.sort_values(by='Position').to_numpy()
-
+    @classmethod
+    def process_data(cls, path: str, on: str, partitions: Dict[str, int], weights: list[str]) -> Tuple[np.ndarray, Tuple[int, int]]:
+        """End-to-end: load data, extract labels, and compute shape."""
+        data = cls.load_data(path, on, weights)
+        labels = data[:, 0]
+        shape = cls.get_shape(labels, partitions)
+        return data, shape

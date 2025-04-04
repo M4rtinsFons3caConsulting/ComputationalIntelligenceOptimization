@@ -2,9 +2,9 @@
 PATH =  "../data/player_data.xlsx"
 
 # CONSTRAINT SET
-ON = 'position'
+LABELS = 'position'
 
-PARTITIONS = {
+CONSTRAINTS = {
     'GK' : 1
     , 'DEF' : 2
     , 'MID' : 2
@@ -16,6 +16,7 @@ WEIGHTS = [
     , 'cost'
 ]
 
+# SOLVER ARGUMENTS
 SOLVER_KWARGS = {
     'n' : 100
     , '0_m' : 0.05

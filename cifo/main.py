@@ -1,14 +1,15 @@
-import pandas as pd
+from constants import PATH, LABELS, LABELS, WEIGHTS, SOLVER_KWARGS
 from utils._classes import Preprocessor as p
 from classes.solver import Solver
-from constants import PATH, ON, PARTITIONS, WEIGHTS, SOLVER_KWARGS
+
 
 def main():
     """Main execution routine."""
-    data = p.process_data(PATH, ON, PARTITIONS, WEIGHTS)
+    # Load the data
+    data, shape = p.process_data(PATH, LABELS, LABELS, WEIGHTS)
 
-    # Initialize and solve, no need to pass global constants explicitly
-    final_solution = Solver(labels, weights, ON, PARTITIONS, SOLVER_KWARGS)
+    # Initialize and solve
+    final_solution = Solver(data, shape, SOLVER_KWARGS)
     
     # Print result
     print(final_solution)
@@ -16,3 +17,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
