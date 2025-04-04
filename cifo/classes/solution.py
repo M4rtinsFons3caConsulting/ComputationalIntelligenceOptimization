@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+# TODO: calculate_fitness, with DOvy 5* solution, merge cost, validate solution 
+
 class Solution:
     def __init__(self, solution_array: np.ndarray, data: pd.DataFre) -> None:
 

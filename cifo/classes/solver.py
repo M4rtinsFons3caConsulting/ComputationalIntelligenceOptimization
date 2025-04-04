@@ -1,5 +1,6 @@
 from classes.solution import Solution
 
+# FIXME: Solve mismatch in input output to Solution, i.e. Lovy fuck up
 
 class Solver:
     def __init__(self, data, weights, kwargs):
