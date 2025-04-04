@@ -21,8 +21,11 @@ class Preprocessor:
             ordered=True
         )
         df = df.sort_values(by=label_col)
+
+        # Reset the indices
+        df.reset_index(inplace=True, drop=True)
        
-        return df[[label_col] + feature_cols].to_numpy()
+        return df[[label_col] + feature_cols].reset_index().to_numpy()
 
     @staticmethod
     def get_shape(

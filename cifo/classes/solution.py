@@ -1,36 +1,45 @@
 import numpy as np
 import pandas as pd
 
-# TODO: calculate_fitness, with DOvy 5* solution, merge cost, validate solution 
 
 class Solution:
-    def __init__(self, solution_array: np.ndarray, data: pd.DataFre) -> None:
-
+    def __init__(self, solution_array: np.ndarray, data) -> None:
         self.solution = solution_array
         self.data = data
         self.valid_solution = True
         self.fitness = self.calculate_fitness()
         
+
     def __repr__(self):
         return f"Solution with : {self.fitness}" 
 
+
     def calculate_fitness(self):
-        # TODO: implement fitness calculating logic 
+        self.fitness = np.std([
+            np.mean(
+                [self.data[int(index), -2] for index in row]
+            ) for row in self.solution
+        ])
+
         return self.fitness
     
 
-    def validate_solution() -> bool:
-        if True:
-            return False
-        else:
-            return True
+    def validate_solution(self) -> bool:
+        for row in self.solution:
+            if sum(
+                self.data[int(index), -1] for index in row
+            ) > 750:
+                # If team cost > 750, invalid solution
+                return False
+        
+        return True
         
     @classmethod
     def initialize(cls, seed_matrix, constraints):
         
         start_col = 0
             
-        for block_size in constraints.values():
+        for block_size in constraints:
             end_col = start_col + block_size
             
             seed_matrix[:, start_col:end_col] = (
@@ -39,7 +48,7 @@ class Solution:
             )
             start_col = end_col
         
-        return cls(seed_matrix)
+        return seed_matrix
     
 
     @classmethod
@@ -53,20 +62,3 @@ class Solution:
             return individual
         else: 
             return None
-
-
-    def get_cost(self):
-        for row in self.solution:
-            if sum(
-                self.data[int(index), -1] for index in row
-            ) > 750:
-                self.valid_solution = False
-                return 'Invalid solution'
-            
-
-    def get_league_std_dev(self):
-        return np.std([
-            np.mean(
-                [self.data[int(index), -2] for index in row]
-            ) for row in self.solution
-        ])
