@@ -1,5 +1,5 @@
 # DATA SOURCE
-PATH =  "../data/player_data.xlsx"
+PATH =  "../data/player_data (Copy).xlsx"
 
 # CONSTRAINT SET
 LABELS = 'Position'
