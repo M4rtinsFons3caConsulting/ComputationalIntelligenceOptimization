@@ -17,24 +17,8 @@ def permute_blocks(
         matrix[:, start_col:end_col] = matrix[np.random.permutation(matrix.shape[0]), start_col:end_col]
         start_col = end_col
     
-    return matrix.astype(np.int8)
-    
-@njit
-def validate_solution(
-      array : np.ndarray 
-    , matrix: np.ndarray
-    ) -> bool:
-    
-    return np.all(np.sum(np.take(array, matrix, axis=1), axis=1) <= 750)
-    
-@njit
-def calculate_fitness(
-      array : np.ndarray 
-    , matrix: np.ndarray
-    ) -> int:
-
-    return  np.mean(np.std(np.take(array, matrix), axis=1).astype(np.float16), axis=1)
-
+    return matrix.astype(np.int32)
+     
 
 class Solution:   
     abilities_array = None
@@ -66,7 +50,7 @@ class Solution:
           self,
         ) -> int:
 
-        self.fitness = np.mean(np.std(Solution.ability_array[self.solution].astype(np.float16), axis=1))
+        self.fitness = np.mean(np.std(Solution.ability_array[self.solution].astype(np.float64), axis=1))
 
              
     @classmethod
