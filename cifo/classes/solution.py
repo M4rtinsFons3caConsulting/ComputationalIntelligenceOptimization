@@ -1,64 +1,94 @@
 import numpy as np
-import pandas as pd
+from typing import List
+from numba import njit
+
+# Numba Just in Time helpers
+@njit
+def permute_blocks(
+      matrix: np.ndarray
+    , constraint_values: np.ndarray
+    ) -> np.ndarray:
+
+    start_col = 0
+
+    for block_size in constraint_values:
+        end_col = start_col + block_size
+
+        matrix[:, start_col:end_col] = matrix[np.random.permutation(matrix.shape[0]), start_col:end_col]
+        start_col = end_col
+    
+    return matrix.astype(np.int8)
+    
+@njit
+def validate_solution(
+      array : np.ndarray 
+    , matrix: np.ndarray
+    ) -> bool:
+    
+    return np.all(np.sum(np.take(array, matrix, axis=1), axis=1) <= 750)
+    
+@njit
+def calculate_fitness(
+      array : np.ndarray 
+    , matrix: np.ndarray
+    ) -> int:
+
+    return  np.mean(np.std(np.take(array, matrix), axis=1).astype(np.float16), axis=1)
 
 
-class Solution:
-    def __init__(self, solution_array: np.ndarray, data) -> None:
-        self.solution = solution_array
-        self.data = data
-        self.valid_solution = True
-        self.fitness = self.calculate_fitness()
+class Solution:   
+    abilities_array = None
+    costs_array = None
+    
+    def __init__(
+              self
+            , solution_array: np.ndarray
+            ) -> None:
+
+            self.solution = solution_array 
+
+
+    def __repr__(
+              self
+            ) -> int:
         
-
-    def __repr__(self):
         return f"Solution with : {self.fitness}" 
 
 
-    def calculate_fitness(self):
-        self.fitness = np.std([
-            np.mean(
-                [self.data[int(index), -2] for index in row]
-            ) for row in self.solution
-        ])
-
-        return self.fitness
-    
-
-    def validate_solution(self) -> bool:
-        for row in self.solution:
-            if sum(
-                self.data[int(index), -1] for index in row
-            ) > 750:
-                # If team cost > 750, invalid solution
-                return False
+    def validate_solution(
+         self
+        ) -> bool:
         
-        return True
-        
+        return np.all(np.sum(Solution.costs_array[self.solution], axis=1) <= 750)
+       
+       
+    def calculate_fitness(
+          self,
+        ) -> int:
+
+        self.fitness = np.mean(np.std(Solution.ability_array[self.solution].astype(np.float16), axis=1))
+
+             
     @classmethod
-    def initialize(cls, seed_matrix, constraints):
-        
-        start_col = 0
-            
-        for block_size in constraints:
-            end_col = start_col + block_size
-            
-            seed_matrix[:, start_col:end_col] = (
-                seed_matrix[np.random.permutation(seed_matrix.shape[0]), :]
-                [:, start_col:end_col]
-            )
-            start_col = end_col
-        
-        return seed_matrix
-    
+    def set_weights(cls, weights):
+        cls.ability_array, cls.costs_array = weights[:, 0], weights[:, 1]
 
     @classmethod
-    def reproduce(cls, parent_1, parent_2, constraints):
-        pass 
-        # manipulate parents
-        indiv_matrix = None
-        individual = cls(indiv_matrix)
+    def initialize(
+        cls: type["Solution"],
+        seed_matrix: np.ndarray,
+        constraints: np.ndarray,
+        n: int = 100
+    ) -> List["Solution"]:
+        
+        solutions = []
 
-        if individual.validate_solution():
-            return individual
-        else: 
-            return None
+        while len(solutions) < n:
+
+            new_solution = cls(permute_blocks(seed_matrix, constraints))
+            
+            if new_solution.validate_solution():
+                new_solution.calculate_fitness()
+                solutions.append(new_solution)
+
+        return solutions
