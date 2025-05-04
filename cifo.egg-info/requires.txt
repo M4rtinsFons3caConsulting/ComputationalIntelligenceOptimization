@@ -1,0 +1,7 @@
+numpy
+numba
+scipy
+openpyxl
+matplotlib
+ipykernel
+seaborn

@@ -19,46 +19,77 @@ window defines the operational subspace in which valid team configurations are e
 
 """
 
-from constants import PATH, LABELS, CONSTRAINTS, WEIGHTS, SOLVER_KWARGS
-from  utils._preprocess import prepare_data
-from classes.solver import Solver
+import argparse
+from typing import Any
+from cifo.loader import data_loader
+from cifo.classes.solver import Solver
+from cifo.constants import ( 
+    LABELS, 
+    CONSTRAINTS, 
+    WEIGHTS, 
+    SOLVER_KWARGS, 
+    DATA_V1
+)
+
+def get_args() -> argparse.Namespace:
+    """
+    Parses command-line arguments for the optimization program.
+
+    Returns:
+        argparse.Namespace: Parsed arguments, including:
+            test (str): A test argument for demonstration or debugging.
+    """ 
+    parser = argparse.ArgumentParser(description="Run the optimization solver")
+    parser.add_argument(
+        "--test", 
+        type=str, 
+        default="Hello World!", 
+        help="Test args"
+    )
+    return parser.parse_args()
 
 
-def get_args():
-    print('Please implement me :(')
+def main(**kwargs: dict[str, Any]) -> None:
+    """
+    Executes the optimization routine.
 
+    This function prepares the input data, initializes the solver, and executes
+    the optimization process. It accepts arbitrary keyword arguments, which may
+    include optional parameters for the solver or runtime configuration.
 
-def main():
-    """Main execution routine."""
-    
-    # Preprocess the data
-    seed_matrix, weights_matrix, window_shape = prepare_data(
-        path=PATH,
+    Expected kwargs:
+        path (str): Optional path to the input dataset. Defaults to DATA_V1.
+
+    Returns:
+        None
+    """
+    # Load the data
+    seed_matrix, weights_matrix, constraints, window_shape = data_loader(
+        path=kwargs.get("path", DATA_V1),
         label_col=LABELS,
         partitions=CONSTRAINTS,
         feature_cols=WEIGHTS
     )
 
-    # Solve the optimization problem
-    final_solution = Solver(
-        seed_matrix
-        , weights_matrix
-        , window_shape
-        , CONSTRAINTS
-        , SOLVER_KWARGS
-        )
+    # Instance the solver
+    solver = Solver(
+        seed_matrix,
+        weights_matrix,
+        window_shape,
+        constraints,
+        SOLVER_KWARGS
+    )
+    
+    # Solve the problem
+    result = solver.solve(**kwargs)
 
     # Print final solution
-    print("Solution:", final_solution)
+    print("Solution:", result)
 
 
 if __name__ == "__main__":
-    # if argpars in None: TODO: set this up
-    #     while True:
-    #         try:
-    #             if input("DO you want to give args? y to yes, other to "):
-    #                 get_args()
-    #         Exception as e:
-    #             print('Please provide')
-    #             continue
-    main()
+    # Get arguments from the command line
+    args = get_args()
+
+    # Pass arguments to the main function as keyword arguments using *vars(args)
+    main(**vars(args))

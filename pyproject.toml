@@ -1,0 +1,28 @@
+[project]
+name = "cifo"
+version = "0.1.0"
+description = "A Numba Optimized Genetic Algorithm Framework for Combinatorial Problems"
+authors = [
+    {name = "Group AI - MsC in Data Science @NovaIMS 2024/2025"}
+]
+license = "MIT"
+readme = "README.md"
+dependencies = [
+    "numpy",
+    "numba",
+    "scipy",
+    "openpyxl",
+    "matplotlib",
+    "ipykernel",
+    "seaborn"
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["cifo"]
+
+[project.scripts]
+run = "cifo.main:main"

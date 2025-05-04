@@ -1,24 +1,33 @@
 import numpy as np
-from classes.solution import Solution
+from typing import Any
+from cifo.classes.solution import Solution
 
 class Solver:
-    def __init__(self, seed, weights, window, constraints, kwargs):
-        # Labels, weights and args
-        self.kwargs = kwargs
-        
-        import time
-        # Start timing
-        start_time = time.perf_counter()
+    def __init__(
+        self: type['Solver'],
+        seed: np.ndarray,
+        weights: np.ndarray,
+        window: tuple[int, int],
+        constraints: np.ndarray,
+        kwargs: dict[str, Any]
+    ) -> None:
+        self.seed = seed
+        self.window = window
+        self.n = kwargs['n']
+        self.epochs = kwargs['epochs']
 
+        Solution.set_constraints(constraints)
         Solution.set_weights(weights)
-        population = Solution.initialize(seed, np.array(list(constraints.values())), self.kwargs['n'])
-        
-        # End timing
-        end_time = time.perf_counter()
 
-        # Calculate elapsed time
-        elapsed_time = end_time - start_time
-        
-        print(min(population, key=lambda x: x.fitness))
+    def solve(self):
 
-        print(f"Execution Time: {elapsed_time:.6f} seconds")
+        print(f"Running for {self.epochs} epochs. Creating {self.n} individuals in each epoch, and computing the mean min fitness.")
+        
+        fitness_array = np.zeros(self.epochs)
+
+        population = Solution.initialize(self.seed, self.n)
+
+        # DO stuff, 
+
+        # Return solution
+        return min(population)
