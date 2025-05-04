@@ -42,7 +42,7 @@ class Solver:
 
     def solve(
         self
-    ) -> Solution.fitness:
+    ) -> float:
 
         """
         Runs the optimization for a fixed number of epochs and returns the best fitness score found.
