@@ -1,13 +1,9 @@
 [project]
-name = "RuBiX"
+name = "rubix"
 version = "0.1.0-alpha.1"
 description = "A Numba Optimized Genetic Algorithm Framework for Combinatorial Problems"
 authors = [
-    {
-        name = "Group AI", 
-        email = "r2015469@novaims.unl.com", 
-        affiliation = "MsC in Data Science @NovaIMS 2024/2025"
-    }
+    {name = "Group AI - MsC in Data Science @NovaIMS 2024/2025"}
 ]
 license = "MIT"
 readme = "README.md"
