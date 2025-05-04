@@ -1,9 +1,13 @@
 [project]
-name = "cifo"
-version = "0.1.0"
+name = "RuBiX"
+version = "0.1.0-alpha.1"
 description = "A Numba Optimized Genetic Algorithm Framework for Combinatorial Problems"
 authors = [
-    {name = "Group AI - MsC in Data Science @NovaIMS 2024/2025"}
+    {
+        name = "Group AI", 
+        email = "r2015469@novaims.unl.com", 
+        affiliation = "MsC in Data Science @NovaIMS 2024/2025"
+    }
 ]
 license = "MIT"
 readme = "README.md"
@@ -22,7 +26,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["cifo"]
+include = ["rubix"]
 
 [project.scripts]
-run = "cifo.main:main"
+run = "rubix.main:main"

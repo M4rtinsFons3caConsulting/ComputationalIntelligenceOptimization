@@ -21,9 +21,9 @@ window defines the operational subspace in which valid team configurations are e
 
 import argparse
 from typing import Any
-from cifo.loader import data_loader
-from cifo.classes.solver import Solver
-from cifo.constants import ( 
+from rubix.loader import data_loader
+from rubix.classes.solver import Solver
+from rubix.constants import ( 
     LABELS, 
     CONSTRAINTS, 
     WEIGHTS, 
@@ -65,7 +65,7 @@ def main(**kwargs: dict[str, Any]) -> None:
     """
     # Load the data
     seed_matrix, weights_matrix, constraints, window_shape = data_loader(
-        path=kwargs.get("path", DATA_V1),
+        path= DATA_V1,
         label_col=LABELS,
         partitions=CONSTRAINTS,
         feature_cols=WEIGHTS
@@ -88,8 +88,4 @@ def main(**kwargs: dict[str, Any]) -> None:
 
 
 if __name__ == "__main__":
-    # Get arguments from the command line
-    args = get_args()
-
-    # Pass arguments to the main function as keyword arguments using *vars(args)
-    main(**vars(args))
+    main()

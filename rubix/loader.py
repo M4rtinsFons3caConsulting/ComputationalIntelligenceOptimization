@@ -26,7 +26,7 @@ from typing import Dict, Tuple, List
 import pandas as pd
 import numpy as np
 
-import cifo.exceptions as ce 
+import rubix.exceptions as ce 
 
 def _validate_data(
     df: pd.DataFrame, 
@@ -235,7 +235,7 @@ def data_loader(
     Returns:
         Tuple containing the seed matrix, features matrix, constraints array, and fitness window shape.
     """
-
+    print(locals()) 
     # Load the data
     data = load_data(path, label_col, feature_cols, partitions)
 

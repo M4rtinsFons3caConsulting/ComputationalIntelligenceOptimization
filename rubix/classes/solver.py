@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Any
-from cifo.classes.solution import Solution
+from rubix.classes.solution import Solution
 
 class Solver:
     def __init__(
@@ -23,11 +23,7 @@ class Solver:
 
         print(f"Running for {self.epochs} epochs. Creating {self.n} individuals in each epoch, and computing the mean min fitness.")
         
-        fitness_array = np.zeros(self.epochs)
 
         population = Solution.initialize(self.seed, self.n)
 
-        # DO stuff, 
-
-        # Return solution
-        return min(population)
+        return min(population).fitness
