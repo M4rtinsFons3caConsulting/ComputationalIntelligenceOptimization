@@ -1,7 +1,6 @@
+# rubix/loader.py
 """
-preprocess_input.py
-
-This module provides a structured pipeline for preparing input data used in solving
+loader.py - This module provides a structured pipeline for preparing input data used in solving
 a constrained optimization problem, such as team formation or resource allocation.
 
 Functions included handle loading, sorting, and preprocessing of structured tabular data 
@@ -20,13 +19,13 @@ Main Output:
 
 """
 
+
 import logging
+import numpy as np
+import pandas as pd
+import rubix.exceptions as ce
 from typing import Dict, Tuple, List
 
-import pandas as pd
-import numpy as np
-
-import rubix.exceptions as ce 
 
 def _validate_data(
     df: pd.DataFrame, 
@@ -74,6 +73,7 @@ def _validate_data(
 
     # Log the success of validation
     logging.info("Data validation passed successfully.")
+
 
 def load_data(
     path: str, 

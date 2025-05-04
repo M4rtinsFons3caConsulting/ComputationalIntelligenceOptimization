@@ -1,3 +1,5 @@
+# rubix/main.py
+
 """
 Authors' Note:
 
@@ -31,7 +33,10 @@ from rubix.constants import (
     DATA_V1
 )
 
-def get_args() -> argparse.Namespace:
+def get_args(
+        
+) -> argparse.Namespace:
+    
     """
     Parses command-line arguments for the optimization program.
 
@@ -39,6 +44,7 @@ def get_args() -> argparse.Namespace:
         argparse.Namespace: Parsed arguments, including:
             test (str): A test argument for demonstration or debugging.
     """ 
+
     parser = argparse.ArgumentParser(description="Run the optimization solver")
     parser.add_argument(
         "--test", 
@@ -49,7 +55,10 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main(**kwargs: dict[str, Any]) -> None:
+def main(
+    **kwargs: dict[str, Any]
+) -> None:
+    
     """
     Executes the optimization routine.
 
@@ -63,6 +72,7 @@ def main(**kwargs: dict[str, Any]) -> None:
     Returns:
         None
     """
+    
     # Load the data
     seed_matrix, weights_matrix, constraints, window_shape = data_loader(
         path= DATA_V1,

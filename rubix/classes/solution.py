@@ -1,5 +1,7 @@
+# rubix/classes/solution.py
+
 """
-This script implements a solution generation and evaluation system using a permutation-based approach. 
+solution.py - This script implements a solution generation and evaluation system using a permutation-based approach. 
 
 Key components:
 1. **permute_blocks**: A function to generate random solutions by permuting blocks of a seed matrix according to specified constraints. It also validates the generated solutions based on cost limits and calculates a fitness score based on the ability array and cost array.
@@ -12,15 +14,21 @@ Main functionality:
 """
 
 
-from typing import List
 import numpy as np
 from numba import types, njit
+from typing import List
 from functools import total_ordering
 
 
 @njit
-def permute_blocks(seed_matrix: np.ndarray, constraints: np.ndarray, 
-                    costs_array: np.ndarray, ability_array: np.ndarray, n: int) -> np.ndarray:
+def permute_blocks(
+    seed_matrix: np.ndarray, 
+    constraints: np.ndarray,
+    costs_array: np.ndarray, 
+    ability_array: np.ndarray, 
+    n: int
+) -> np.ndarray:
+    
     """
     Generate n random solutions by permuting blocks of a seed matrix according to constraints, 
     validate the solutions, and compute their fitness.
@@ -36,6 +44,7 @@ def permute_blocks(seed_matrix: np.ndarray, constraints: np.ndarray,
         np.ndarray: Array of valid solutions.
         np.ndarray: Fitness values for the corresponding solutions.
     """
+
     counter = 0
     solution_array = np.empty((n, *seed_matrix.shape), dtype=np.int64)
     fitness_array = np.empty(n, dtype=np.float64)
@@ -86,6 +95,7 @@ def permute_blocks(seed_matrix: np.ndarray, constraints: np.ndarray,
 
 @total_ordering
 class Solution:
+
     """
     A class representing a solution with its associated fitness value. 
     Supports operations such as updating fitness, rolling the solution array, 
@@ -95,12 +105,18 @@ class Solution:
         solution (np.ndarray): The solution array.
         fitness (int): The fitness value of the solution.
     """
+
     abilities_array = None
     costs_array = None
     constraints = None  # Add constraints as class-level variable
 
 
-    def __init__(self, solution_array: np.ndarray, fitness: int) -> None:
+    def __init__(
+        self, 
+        solution_array: np.ndarray, 
+        fitness: int
+    ) -> None:
+        
         """
         Initialize the Solution object.
 
@@ -108,10 +124,15 @@ class Solution:
             solution_array (np.ndarray): The solution array.
             fitness (int): The fitness value of the solution.
         """
+
         self.solution = solution_array
         self.fitness = fitness
 
-    def __lt__(self, other):
+    def __lt__(
+        self, 
+        other
+    ) -> bool:
+        
         """
         Compare the fitness values between self and another Solution.
 
@@ -121,30 +142,46 @@ class Solution:
         Returns:
             bool: True if self's fitness is less than the other solution's fitness.
         """
+
         return self.fitness < other.fitness
 
     @classmethod
-    def set_constraints(cls, constraints: np.ndarray) -> None:
+    def set_constraints(
+        cls, 
+        constraints: np.ndarray
+    ) -> None:
+        
         """
         Set the constraints for the class.
 
         Args:
             constraints (np.ndarray): The constraints to set.
         """
+
         cls.constraints = constraints
 
     @classmethod
-    def set_weights(cls, weights: np.ndarray) -> None:
+    def set_weights(
+        cls, 
+        weights: np.ndarray
+    ) -> None:
+        
         """
         Set the ability and cost arrays for the class.
 
         Args:
             weights (np.ndarray): A 2D array where the first column is abilities and the second column is costs.
         """
+
         cls.abilities_array, cls.costs_array = weights[:, 0], weights[:, 1]
 
     @classmethod
-    def initialize(cls: type["Solution"], seed_matrix: np.ndarray, n: int = 100) -> List["Solution"]:
+    def initialize(
+        cls: type["Solution"], 
+        seed_matrix: np.ndarray, 
+        n: int = 100
+    ) -> List["Solution"]:
+        
         """
         Initialize n random solutions based on the seed matrix and constraints.
 
@@ -155,6 +192,7 @@ class Solution:
         Returns:
             List[Solution]: A list of initialized Solution objects.
         """
+
         solutions, fits = permute_blocks(
               seed_matrix.astype(np.int64)
             , cls.constraints.astype(np.int64)
@@ -164,6 +202,7 @@ class Solution:
         )
 
         return [cls(solutions[i], fits[i]) for i in range(n)]
+
 
 # Trigger compilation for the permute_blocks function
 permute_blocks.compile((

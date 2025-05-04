@@ -8,13 +8,14 @@ authors = [
 license = "MIT"
 readme = "README.md"
 dependencies = [
-    "numpy",
-    "numba",
-    "scipy",
     "openpyxl",
+    "pandas",
+    "numpy",
+    "scipy",
     "matplotlib",
+    "seaborn",
     "ipykernel",
-    "seaborn"
+    "numba"
 ]
 
 [build-system]
