@@ -244,6 +244,13 @@ def data_loader(
     weights = data[:, 2:]
     constraints = np.array(list(partitions.values()))
 
+    # Calculate the block start indices from constraints
+    block_indices = []
+    for i, block_size in enumerate(constraints):
+        block_indices.append(block_size[i] + block_size[i-1]  )
+       
+    block_indices = np.array(block_indices) - 1
+
     # Get window shape
     window_shape = compute_fitness_window_shape(labels, partitions, window)
     
@@ -253,4 +260,4 @@ def data_loader(
     # Fill seed matrix
     seed_matrix = generate_seed_matrix(labels, label_distribution)
 
-    return seed_matrix, weights, constraints, window_shape
+    return seed_matrix, weights, block_indices, window_shape

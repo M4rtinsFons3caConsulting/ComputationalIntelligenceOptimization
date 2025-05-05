@@ -16,18 +16,18 @@ Main functionality:
 
 import numpy as np
 from numba import types, njit
-from typing import List
+from typing import List, Tuple
 from functools import total_ordering
 
 
 @njit
 def permute_blocks(
     seed_matrix: np.ndarray, 
-    constraints: np.ndarray,
+    block_indices: np.ndarray,
     costs_array: np.ndarray, 
     ability_array: np.ndarray, 
     n: int
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     
     """
     Generate n random solutions by permuting blocks of a seed matrix according to constraints, 
@@ -54,8 +54,8 @@ def permute_blocks(
         curr_solution = seed_matrix.copy()
         start_col = 0
 
-        for block_size in constraints:
-            end_col = start_col + block_size
+        for idx in range(len(block_indices)):
+            end_col = start_col + block_indices[idx]
             curr_solution[:, start_col:end_col] = curr_solution[np.random.permutation(curr_solution.shape[0]), start_col:end_col]
             start_col = end_col
 
@@ -108,7 +108,8 @@ class Solution:
 
     abilities_array = None
     costs_array = None
-    constraints = None  # Add constraints as class-level variable
+    constraints = None
+    solution_shape = None
 
 
     def __init__(
@@ -128,6 +129,7 @@ class Solution:
         self.solution = solution_array
         self.fitness = fitness
 
+
     def __lt__(
         self, 
         other
@@ -145,10 +147,37 @@ class Solution:
 
         return self.fitness < other.fitness
 
+
+    def get_roll(
+        self, 
+        rolled
+    ) -> None:
+        
+        """
+        Gets a rolled version of the matrix. 
+        """
+
+        self.solution_array = rolled
+
+
+    @classmethod
+    def set_shape(
+        cls, 
+        seed_shape: Tuple
+    ) -> None:
+        """
+        Set the solutions shape for the class.
+
+        Args:
+            seed_shape (Tuple): The shape of the seed matrix.
+        """
+        cls.solution_shape = seed_shape
+
+
     @classmethod
     def set_constraints(
         cls, 
-        constraints: np.ndarray
+        block_indices: np.ndarray
     ) -> None:
         
         """
@@ -158,7 +187,8 @@ class Solution:
             constraints (np.ndarray): The constraints to set.
         """
 
-        cls.constraints = constraints
+        cls.block_indices = block_indices
+
 
     @classmethod
     def set_weights(
@@ -174,7 +204,7 @@ class Solution:
         """
 
         cls.abilities_array, cls.costs_array = weights[:, 0], weights[:, 1]
-
+    
     @classmethod
     def initialize(
         cls: type["Solution"], 
@@ -195,7 +225,7 @@ class Solution:
 
         solutions, fits = permute_blocks(
               seed_matrix.astype(np.int64)
-            , cls.constraints.astype(np.int64)
+            , cls.block_indices.astype(np.int64)
             , cls.abilities_array.astype(np.int64)
             , cls.costs_array.astype(np.int64)
             , n
@@ -207,7 +237,7 @@ class Solution:
 # Trigger compilation for the permute_blocks function
 permute_blocks.compile((
     types.Array(types.int64, 2, 'C'),  # seed_matrix (2D int64 array in C-contiguous order)
-    types.Array(types.int64, 1, 'C'),  # constraints (1D int64 array in C-contiguous order)
+    types.Array(types.int64, 1, 'C'),  # block_indices (1D int64 array in C-contiguous order)
     types.Array(types.int64, 1, 'C'),  # costs_array (1D int64 array in C-contiguous order)
     types.Array(types.int64, 1, 'C'),  # ability_array (1D int64 array in C-contiguous order)
     types.int64                        # n (scalar int64)
@@ -215,15 +245,6 @@ permute_blocks.compile((
 
 
 # FIXME: Implement these
-
-# def roll(self, shift: int) -> None:
-#         """
-#         Roll the solution array by 'shift' positions using np.roll, keeping fitness unchanged.
-
-#         Args:
-#             shift (int): The number of positions to roll the solution array.
-#         """
-#         self.solution = np.roll(self.solution, shift)
 
 # def update_fitness(self) -> None:
 #     """Update fitness to the last value of the solution array."""

@@ -74,7 +74,7 @@ def main(
     """
     
     # Load the data
-    seed_matrix, weights_matrix, constraints, window_shape = data_loader(
+    seed_matrix, weights_matrix, column_indices, window_shape = data_loader(
         path= DATA_V1,
         label_col=LABELS,
         partitions=CONSTRAINTS,
@@ -86,7 +86,7 @@ def main(
         seed_matrix,
         weights_matrix,
         window_shape,
-        constraints,
+        column_indices,
         SOLVER_KWARGS
     )
     
