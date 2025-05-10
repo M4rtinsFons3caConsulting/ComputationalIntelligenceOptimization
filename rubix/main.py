@@ -23,15 +23,11 @@ window defines the operational subspace in which valid team configurations are e
 
 import argparse
 from typing import Any
-from rubix.loader import data_loader
+from rubix.constants import DATA_V1
+from rubix.loader import load_data
+from rubix.processor import process_data
 from rubix.classes.solver import Solver
-from rubix.constants import ( 
-    LABELS, 
-    CONSTRAINTS, 
-    WEIGHTS, 
-    SOLVER_KWARGS, 
-    DATA_V1
-)
+
 
 def get_args(
         
@@ -72,30 +68,29 @@ def main(
     Returns:
         None
     """
-    
-    # Load the data
-    seed_matrix, weights_matrix, column_indices, window_shape = data_loader(
-        path= DATA_V1,
-        label_col=LABELS,
-        partitions=CONSTRAINTS,
-        feature_cols=WEIGHTS
+
+    # Load the data from the provided path
+    dataset = load_data(
+        path=DATA_V1, 
+        config_path="rubix.configs/baseline_config.json"
     )
 
-    # Instance the solver
-    solver = Solver(
-        seed_matrix,
-        weights_matrix,
-        window_shape,
-        column_indices,
-        SOLVER_KWARGS
-    )
+    # Process the data to the necessary shape
+    dataset = process_data(dataset)
     
+    # Initialize the solver
+    solver = Solver(
+        dataset.matrix, 
+        dataset.cost_params,  
+        dataset.layout_params, 
+        dataset.solver_params
+    )
+
     # Solve the problem
     result = solver.solve(**kwargs)
 
     # Print final solution
-    print("Solution:", result)
-
+    print(dataset, result)
 
 if __name__ == "__main__":
     main()

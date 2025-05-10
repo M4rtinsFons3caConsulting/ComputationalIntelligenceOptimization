@@ -11,11 +11,10 @@ dependencies = [
     "openpyxl",
     "pandas",
     "numpy",
-    "scipy",
     "matplotlib",
     "seaborn",
     "ipykernel",
-    "numba"
+    "torch"
 ]
 
 [build-system]

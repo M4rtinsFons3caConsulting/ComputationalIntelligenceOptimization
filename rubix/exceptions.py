@@ -6,7 +6,7 @@ class DataValidationError(Exception):
     """Base class for data validation errors."""
     pass
 
-class MissingColumnError(DataValidationError):
+class MissingFeatureColumnError(DataValidationError):
     """Raised when a required column is missing."""
     pass
 

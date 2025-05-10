@@ -1,0 +1,26 @@
+{
+    "problem_constraints" : 
+    {   
+        "label_col": "Position",
+        "weights": [
+            "Skill", 
+            "Salary (â‚¬M)"
+        ],
+        "constraints": {
+            "GK": 1,
+            "DEF": 2,
+            "MID": 2,
+            "FWD": 2
+        },
+        "window": []
+    },
+    "solver_kwargs" :
+    {
+        "n" : 10,
+        "epochs": 10,
+        "0_m" : 0.05,
+        "0_c" : 0.5,
+        "d_m" : 1e-5,
+        "tol" : 1e-63
+    }
+}
