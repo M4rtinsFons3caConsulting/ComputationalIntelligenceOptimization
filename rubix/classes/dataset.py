@@ -61,6 +61,7 @@ class DataSet:
         if self.constructors:
             parts.append("  constructors:\n" + "\n".join(
                 f"    {k}: {repr(v)}" for k, v in self.constructors.items()) + "\n")
+            
         if self.solver_params:
             parts.append("  solver parameters:\n" + "\n".join(
                 f"    {k}: {repr(v)}" for k, v in self.solver_params.items()) + "\n")
