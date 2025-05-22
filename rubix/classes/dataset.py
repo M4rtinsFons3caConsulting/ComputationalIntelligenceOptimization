@@ -1,29 +1,36 @@
 # rubix/classes/dataset.py
 
 """
-This module defines the `DataSet` class, which serves as an immutable container for raw and processed 
-data used in optimization tasks within the framework. The `DataSet` class is designed to manage tabular 
-data and its transformation into tensor-based representations, facilitating the optimization process.
+This module defines the `DataSet` class, a core structure in the Rubix optimization framework.
 
-Key features include:
-- Storing raw data in the form of a `pandas.DataFrame`.
-- Storing transformed data as a `torch.Tensor` in the `matrix` attribute.
-- Storing derived metadata such as cost parameters, constraints, and window dimensions in a dictionary.
-- Providing methods for updating the data in an immutable manner while keeping the original object intact.
-- Custom string representation for easy inspection of the dataset's state and contents.
+The `DataSet` is an immutable container that represents either:
+- **Raw data** (only the original DataFrame and basic metadata), or
+- **Processed data** (fully transformed, with tensor matrix, cost parameters, and layout information).
 
-The `DataSet` class is intended to be used for managing data through different stages of processing in the 
-optimization pipeline, where raw data may be transformed into a structured matrix and additional metadata 
-is added for use in various optimization algorithms.
+Key features:
+- Enforces immutability using `dataclass(frozen=True)`
+- Validates construction context (processed data must be created by `rubix.process.process_data`)
+- Ensures field constraints per stage (raw vs processed)
+- Provides an `update()` method to create altered copies
+- Custom `__repr__` for clear inspection
+
+Raises custom exceptions from `rubix.exceptions` for robust validation enforcement.
 
 Classes:
-    DataSet: Immutable container for data used in optimization, supporting both raw and processed forms.
+    DataSet: An immutable container representing raw or processed data within the optimization pipeline.
 """
 
+import inspect
 import pandas as pd
 from typing import Dict, Optional, Any
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, replace
 from torch import Tensor
+from rubix.exceptions import (
+    InvalidRawDataSetError,
+    InvalidProcessedDataSetError,
+    UnauthorizedDataSetConstructionError,
+    ProcessedDataSetUpdateError,  # Import the custom error
+)
 
 @dataclass(frozen=True)
 class DataSet:
@@ -41,39 +48,77 @@ class DataSet:
     
     # Raw
     dataframe: pd.DataFrame
-    constructors: Optional[Dict[str, Any]] = field(default_factory=dict) 
-    solver_params: Optional[Dict[str, Any]] = field(default_factory=dict)
+    constructors: Dict[str, Any]
+    solver_params: Dict[str, Any]
 
     # Processed
     matrix: Optional[Tensor] = None
-    cost_params: Optional[Dict[str, Tensor]] = field(default_factory=dict)
-    layout_params: Optional[Dict[str, Any]] = field(default_factory=dict)
-            
-    def __repr__(self) -> str:
-        stage = "Processed" if self.matrix is not None else "Raw/Ingested"
+    cost_params: Optional[Dict[str, Tensor]] = None
+    layout_params: Optional[Dict[str, Any]] = None
 
-        parts = [
-            f"DataSet(",
-            f"  stage: {stage},\n",
-            f"  dataframe:\n{self.dataframe.head()}\n",
-        ]
+    def __post_init__(self):
+        """
+        Ensures that DataSet is initialized correctly, based on whether it's raw or processed.
+        - Processed DataSet requires matrix, cost_params, layout_params, constructors, and solver_params.
+        - Raw DataSet must not have matrix, cost_params, or layout_params.
+        """
+        stack = inspect.stack()
+        caller = next(
+            (
+                f for f in stack
+                if f.function == "process_data"
+                and "rubix.process" in f.frame.f_globals.get("__name__", "")
+            ),
+            None
+        )
+
+        is_processed = self.matrix is not None
+
+        if is_processed:
+            if caller is None:
+                raise UnauthorizedDataSetConstructionError(
+                    "Processed DataSet instances must be created by `rubix.process.process_data()`."
+                )
+            if not all([
+                self.matrix is not None,
+                self.cost_params is not None,
+                self.layout_params is not None,
+                self.constructors is not None,
+                self.solver_params is not None
+            ]):
+                raise InvalidProcessedDataSetError(
+                    "Processed DataSet requires matrix, cost_params, layout_params, constructors, and solver_params."
+                )
+            if self.dataframe is None:
+                raise InvalidProcessedDataSetError(
+                    "Processed DataSet must include the original dataframe."
+                )
+        else:
+            if any([self.matrix is not None, self.cost_params is not None, self.layout_params is not None]):
+                raise InvalidRawDataSetError(
+                    "Raw DataSet must only include dataframe, constructors, and solver_params."
+                )
+
+    def __repr__(self) -> str:
+        """
+        Provides a string representation of the DataSet, showing key attributes depending on its stage.
+
+        Returns:
+            str: String representation of the DataSet instance.
+        """
+        stage = "Processed" if self.matrix is not None else "Raw/Ingested"
+        parts = [f"DataSet(", f"  stage: {stage},\n", f"  dataframe:\n{self.dataframe.head()}\n"]
 
         if self.constructors:
-            parts.append("  constructors:\n" + "\n".join(
-                f"    {k}: {repr(v)}" for k, v in self.constructors.items()) + "\n")
-            
+            parts.append("  constructors:\n" + "\n".join(f"    {k}: {repr(v)}" for k, v in self.constructors.items()) + "\n")
         if self.solver_params:
-            parts.append("  solver parameters:\n" + "\n".join(
-                f"    {k}: {repr(v)}" for k, v in self.solver_params.items()) + "\n")
+            parts.append("  solver parameters:\n" + "\n".join(f"    {k}: {repr(v)}" for k, v in self.solver_params.items()) + "\n")
 
         if stage == "Processed":
             matrix_preview = self.matrix[:5] if self.matrix.ndim == 2 else self.matrix
             parts.append(f"  matrix:\n{repr(matrix_preview)}\n")
-
             if self.layout_params:
-                parts.append("  layout parameters:\n" + "\n".join(
-                    f"    {k}: {repr(v)}" for k, v in self.layout_params.items()) + "\n")
-
+                parts.append("  layout parameters:\n" + "\n".join(f"    {k}: {repr(v)}" for k, v in self.layout_params.items()) + "\n")
             if self.cost_params:
                 arrays = self.cost_params.get("arrays", [])
                 lookup = self.cost_params.get("lookup", {})
@@ -92,15 +137,16 @@ class DataSet:
         return "\n".join(parts)
 
     def update(
-        self, 
-        matrix: Optional[Tensor] = None, 
+        self,
+        matrix: Optional[Tensor] = None,
         cost_params: Optional[Dict[str, Tensor]] = None,
         layout_params: Optional[Dict[str, Any]] = None,
         solver_params: Optional[Dict[str, Any]] = None,
-        constructors: Optional[Dict[str, Any]] = None  # Ensure constructors can be updated too
+        constructors: Optional[Dict[str, Any]] = None
     ) -> "DataSet":
         """
         Creates a new DataSet with the specified changes while keeping the original data immutable.
+        Raises an error if the DataSet is already processed.
 
         Args:
             matrix (Optional[Tensor]): The new matrix to update.
@@ -111,7 +157,13 @@ class DataSet:
 
         Returns:
             DataSet: A new instance of DataSet with updated values.
+
+        Raises:
+            ProcessedDataSetUpdateError: If an attempt is made to update a processed DataSet.
         """
+        if self.matrix is not None:  # Check if it's a processed dataset
+            raise ProcessedDataSetUpdateError("Processed DataSet cannot be updated.")
+        
         return replace(
             self,
             matrix=matrix if matrix is not None else self.matrix,

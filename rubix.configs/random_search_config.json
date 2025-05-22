@@ -1,0 +1,23 @@
+{
+    "problem_constraints" : 
+    {   
+        "label_col": "Position",
+        "weights": [
+            "Skill", 
+            "Salary (â‚¬M)"
+        ],
+        "constraints": {
+            "GK": 1,
+            "DEF": 2,
+            "MID": 2,
+            "FWD": 2
+        },
+        "window": []
+    },
+    "solver_kwargs" :
+    {   
+        "strategy": "random",
+        "n": 100,
+        "n_iter" : 1000
+    }
+}

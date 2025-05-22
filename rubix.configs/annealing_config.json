@@ -1,0 +1,27 @@
+{
+    "problem_constraints" : 
+    {   
+        "label_col": "Position",
+        "weights": [
+            "Skill", 
+            "Salary (â‚¬M)"
+        ],
+        "constraints": {
+            "GK": 1,
+            "DEF": 2,
+            "MID": 2,
+            "FWD": 2
+        },
+        "window": []
+    },
+    "solver_kwargs" :
+    {   
+        "strategy": "annealing",
+        "n": 100,
+        "temperature" : 1.0,
+        "decay_rate" :1e-3,
+        "min_decay": 1e-9,
+        "k": 1,
+        "tol" : 1e-5
+    }
+}

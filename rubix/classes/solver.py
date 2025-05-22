@@ -1,6 +1,7 @@
 from typing import Any, Dict
 from rubix.classes.cube import Rubix
 from torch import Tensor
+from rubix.functions.solver_strategies import STRATEGY
 
 class Solver:
     """
@@ -37,33 +38,27 @@ class Solver:
         # Prime the Solution constructor class
         Rubix.class_setup(seed, cost_params, layout_params)
 
-    def solve(self) -> float:
+    def solve(self) -> Rubix:
+        
         """
-        Runs the optimization for a fixed number of epochs and returns the best fitness score found.
+        Executes the optimization process using the selected solver strategy.
+
+        This method initializes the solution population and delegates the entire
+        optimization procedure to the chosen strategy function. The strategy function
+        is responsible for managing iterations, convergence criteria, and returning
+        the best found solution.
 
         Returns:
-            float: The fitness value of the best solution in the final population.
+            Rubix: The Rubix instance representing the best solution found by the strategy.
         """
-        print(f"Running for {self.solver_params['epochs']} epochs.")
 
-        # Initialize the population (cube)
-        cube = Rubix.initialize()
-        best_cube = cube
+        strategy_fn = STRATEGY[self.solver_params["strategy"]]
 
-        for epoch in range(self.solver_params['epochs']):
-            print(f"Epoch {epoch + 1}/{self.solver_params['epochs']}...")
-            
-            # Get new mappings and apply permutation
-            roll_map, swap_map, mode_map = cube.get_mappings()
-            
-            # Compute a new cube
-            new_cube = cube.rubix_permute(cube.solutions, roll_map, swap_map, mode_map)
+        return strategy_fn(
+            Rubix.initialize(), 
+            self.solver_params
+        )
 
-            # Update the best solution if fitness improves
-            if new_cube < best_cube:
-                best_cube = new_cube
-
-        return best_cube
 
 
 

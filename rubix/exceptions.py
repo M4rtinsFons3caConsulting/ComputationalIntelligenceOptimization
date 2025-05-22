@@ -21,3 +21,26 @@ class InvalidLabelColumnError(DataValidationError):
 class InjectiveConstraintsError(DataValidationError):
     """Raised when constraints are not injective (label column is not in partitions keys)."""
     pass
+
+
+# DataSet Construction Exceptions
+
+class DataSetConstructionError(Exception):
+    """Base class for errors raised during DataSet construction."""
+    pass
+
+class InvalidRawDataSetError(DataSetConstructionError):
+    """Raised when a raw DataSet is initialized with forbidden fields."""
+    pass
+
+class InvalidProcessedDataSetError(DataSetConstructionError):
+    """Raised when a processed DataSet is missing required fields."""
+    pass
+
+class UnauthorizedDataSetConstructionError(DataSetConstructionError):
+    """Raised when a processed DataSet is created outside of the authorized processor."""
+    pass
+
+class ProcessedDataSetUpdateError(Exception):
+    """Raised when an attempt is made to update a processed DataSet."""
+    pass

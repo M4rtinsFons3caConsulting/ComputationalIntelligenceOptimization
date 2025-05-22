@@ -24,7 +24,7 @@ class Rubix:
             f"  {self.solutions[self.best_index]} "
             f"\n)"
         )
-
+    
     # Instance constructor
     def __init__(
         self, 
@@ -44,6 +44,7 @@ class Rubix:
         cls.shape = layout['rubix_shape']
         cls.block_indices = layout["block_indices"] 
         cls.block_ranges = layout["block_ranges"]
+        cls.valid_swaps = [i for i, (start, end) in enumerate(cls.block_ranges) if (end - start) > 1]
         cls.cost_arrays = costs 
      
     @classmethod
@@ -97,8 +98,8 @@ class Rubix:
         """
 
         # Get abilities and costs for the batch (n, H, W)
-        abilities = self.__class__.cost_arrays['arrays'][0][self.solutions]  
-        costs = self.__class__.cost_arrays['arrays'][1][self.solutions]          
+        abilities = Rubix.cost_arrays['arrays'][0][self.solutions]  
+        costs = Rubix.cost_arrays['arrays'][1][self.solutions]          
 
         # Compute total cost per solution
         total_costs = costs.sum(dim=2)
@@ -116,63 +117,4 @@ class Rubix:
 
         # Store best fitness
         self.rubix_fitness, self.best_index = torch.min(fitnesses, dim=0)
-    
-    def get_mappings(
-            self,
-        ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        
-        n, H, W = self.__class__.shape
-
-        # --- Roll Mapping ---
-        roll_flags = torch.rand(W) < 0.5 #TODO: consider making the roll chance a Rubix attribute
-        roll_shifts = torch.randint(1, H, size=(W,), dtype=torch.int64)
-        roll_map = torch.zeros((W, 2), dtype=torch.int64)
-        roll_map[:, 0] = roll_flags.to(torch.int64)
-        roll_map[:, 1] = roll_shifts * roll_flags 
-
-        # --- Swap Mapping ---
-        swap_map = torch.rand((len(self.__class__.block_indices), H, n)) < 0.5  #TODO: consider making the swap chance a Rubix attribute
-
-        # --- Mode Mapping ---
-        mode_map = torch.randint(0, 4, size=(n,), dtype=torch.int64)
-
-        # Return the generated mappings
-        return roll_map, swap_map, mode_map
-
-    def rubix_permute(
-        self,
-        cube: torch.Tensor,             # shape: (n, H, W)
-        roll_map: torch.Tensor,         # shape: (W, 2)
-        swap_map: torch.Tensor,         # shape: (num_blocks, H, n)
-        mode_map: torch.Tensor          # shape: (n,)
-    ) -> torch.Tensor:
-        
-        n, H, W = self.__class__.shape
-        block_ranges = self.__class__.block_ranges 
-
-        new_cube = cube.clone()
-
-        for m in range(n):
-            mode = mode_map[m].item()
-            if mode in {0, 2}:  # swap (only or before roll)
-                for b, (start, end) in enumerate(block_ranges):
-                    for r in range(H):
-                        if swap_map[b, r, m]:
-                            perm = torch.randperm(end - start)
-                            new_cube[m, r, start:end] = new_cube[m, r, start:end][perm]
-    
-            if mode in {1, 3}:  # roll (only or before swap)
-                for c in range(W):
-                    if roll_map[c, 0]:
-                        shift = roll_map[c, 1].item()
-                        new_cube[m, :, c] = torch.roll(new_cube[m, :, c], shifts=shift, dims=0)
-                
-            if mode == 3:  # roll then swap
-                for b, (start, end) in enumerate(block_ranges):
-                    for r in range(H):
-                        if swap_map[b, r, m]:
-                            perm = torch.randperm(end - start)
-                            new_cube[m, r, start:end] = new_cube[m, r, start:end][perm]
-                
-        return Rubix(new_cube)
-    
+   

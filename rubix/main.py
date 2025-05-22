@@ -72,7 +72,7 @@ def main(
     # Load the data from the provided path
     dataset = load_data(
         path=DATA_V1, 
-        config_path="rubix.configs/baseline_config.json"
+        config_path="rubix.configs/rubix_search_config.json"
     )
 
     # Process the data to the necessary shape

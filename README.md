@@ -1,5 +1,5 @@
 DISCLAIMER: Much of this README.md has been generated automaticall and is still under revision. 
-
+# TODO: RERWITE THIS THING!! :D
 # Computational Intelligence Optimization (RuBiX)
 
 RuBiX is a Numba-optimized Genetic Algorithm Framework designed for solving combinatorial problems. It offers efficient and scalable solutions by leveraging modern computational techniques.

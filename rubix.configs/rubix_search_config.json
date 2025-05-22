@@ -1,0 +1,27 @@
+{
+    "problem_constraints" : 
+    {   
+        "label_col": "Position",
+        "weights": [
+            "Skill", 
+            "Salary (â‚¬M)"
+        ],
+        "constraints": {
+            "GK": 1,
+            "DEF": 2,
+            "MID": 2,
+            "FWD": 2
+        },
+        "window": []
+    },
+    "solver_kwargs" :
+    {
+        "strategy": "rubix_search",
+        "n": 100,
+        "epochs": 1000,
+        "patience": 100,
+        "p_roll": 0.5,
+        "p_swap" : 0.5
+        
+    }
+}
