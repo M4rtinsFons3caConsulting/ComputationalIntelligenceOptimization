@@ -85,6 +85,7 @@ class Rubix:
     
     # Instance methods
     def compute_fitness(self) -> None:
+
         """
         Computes fitness for each solution:
         - If total cost > 750 → fitness = -inf
@@ -104,8 +105,16 @@ class Rubix:
         total_costs = costs.sum(dim=2)
         row_means = abilities.mean(dim=2)
         
-        # Compute the standard deviation of row means for valid solutions
-        fitnesses = torch.std(
+        # Initialize at -inf
+        fitnesses = torch.full(
+            (self.solutions.size(0),), 
+            float('inf'), 
+            device=self.solutions.device,
+            dtype=row_means.dtype
+        )
+        
+        # Fill the ones that meet the requirement
+        fitnesses[(total_costs <= 750).all(dim=1)] = torch.std(
             row_means[(total_costs <= 750).all(dim=1)],
             dim=1,
             unbiased=True

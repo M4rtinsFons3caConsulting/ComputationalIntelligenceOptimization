@@ -4,6 +4,7 @@ from torch import Tensor
 from rubix.functions.solver_strategies import STRATEGY
 
 class Solver:
+
     """
     Solver manages the iterative optimization of solutions using evolutionary principles.
 
@@ -22,6 +23,7 @@ class Solver:
         solver_params: Dict[str, Any]
 
     ) -> None:
+        
         """
         Initializes the Solver with the given parameters.
 

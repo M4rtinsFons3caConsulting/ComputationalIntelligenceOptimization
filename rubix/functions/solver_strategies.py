@@ -13,6 +13,8 @@ STRATEGY_NAMES = [
 import numpy as np
 from rubix.classes.cube import Rubix
 from rubix.functions.operators import apply_operator
+from rubix.functions.crossovers import apply_crossover
+from rubix.functions.selectors import apply_selector
 
 def random_search(
     cube: Rubix,
@@ -149,11 +151,74 @@ def rubix_search(
             
     return best_cube
 
-def genetic_evolver():
-    pass
+def genetic_evolver(
+    cube: Rubix,
+    params: dict
+) -> Rubix:
+    
+    epochs = params['epochs']
+    patience = params['patience']
+    
+    print(f"Running for {epochs} iterations.")
 
-def rubix_evolver():
-    pass
+    # Initialize the population (cube)
+    best_cube = cube
+    
+    for epoch in range(epochs):
+
+        if patience != 0:
+            print(f"Epoch {epoch + 1}/{epochs}...")
+            
+            # Note: Mutation stochastics are controled inside of the operator, via kwargs. See config file.
+            new_cube = apply_operator(
+                best_cube.solutions,
+                **params
+            )
+           
+            # TODO: apply selection
+
+
+            # Update the best solution if fitness improves
+            if new_cube < best_cube:
+                best_cube = new_cube
+                patience = params['patience']
+
+            else:
+                patience -= 1
+            
+    return best_cube
+
+def rubix_evolver(
+    cube: Rubix,
+    params: dict
+) -> Rubix:
+    epochs = params['epochs']
+    patience = params['patience']
+
+    print(f"Running for {epochs} iterations.")
+
+    # Initialize the population (cube)
+    best_cube = cube
+    
+    for epoch in range(epochs):
+
+        if patience != 0:
+            print(f"Epoch {epoch + 1}/{epochs}...")
+            
+            new_cube = apply_operator(
+                best_cube.solutions,
+                **params
+            )
+           
+            # Update the best solution if fitness improves
+            if new_cube < best_cube:
+                best_cube = new_cube
+                patience = params['patience']
+
+            else:
+                patience -= 1
+            
+    return best_cube
 
 STRATEGY = \
     dict(

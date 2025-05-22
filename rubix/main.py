@@ -21,6 +21,7 @@ window defines the operational subspace in which valid team configurations are e
 
 """
 
+import sys
 import argparse
 from typing import Any
 from rubix.constants import DATA_V1
@@ -28,27 +29,14 @@ from rubix.loader import load_data
 from rubix.processor import process_data
 from rubix.classes.solver import Solver
 
-#FIXME: SOlve the argparser issues.
-def get_args(
-        
-) -> argparse.Namespace:
-    
-    """
-    Parses command-line arguments for the optimization program.
-
-    Returns:
-        argparse.Namespace: Parsed arguments, including:
-            path (str): The path to a configuration file.
-    """ 
-
+def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the optimization solver")
     parser.add_argument(
         "--path", 
-        type=str, 
+        type=str,
         help="Path to a configuration file"
     )
     return parser.parse_args()
-
 
 def main(
     **kwargs: dict[str, Any]
@@ -67,7 +55,9 @@ def main(
     Returns:
         None
     """
-    config_path = f"rubix.configs/{kwargs.get('path', 'hill_climber_config.json')}"
+
+    path = kwargs.pop('path') or 'hill_climber_config.json'
+    config_path = f"rubix.configs/{path}"
 
     # Load the data from the provided path
     dataset = load_data(
@@ -94,6 +84,17 @@ def main(
     # Print final solution
     print(dataset, result)
 
-if __name__ == "__main__":
+
+# For rubix main executions
+if __name__ == "rubix.main":
+    sys.exit(
+        main(
+            **vars(get_args())
+        )
+    )
+
+# FIXME: Currently does not work
+# For CLI execution
+elif __name__ == "__main__":
     args = get_args()
     main(**vars(args))

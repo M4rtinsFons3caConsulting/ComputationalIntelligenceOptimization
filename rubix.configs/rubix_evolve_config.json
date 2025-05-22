@@ -16,12 +16,12 @@
     },
     "solver_kwargs" :
     {   
-        "strategy": "rubix_evolve",
-        "n": 100, 
-        "epochs": 10,
-        "0_m" : 0.05,
-        "0_c" : 0.5,
-        "d_m" : 1e-5,
-        "tol" : 1e-63
+        "strategy": "rubix_search",
+        "n": 100,
+        "epochs": 1000,
+        "patience": 100,
+        "p_roll": 0.5,
+        "p_swap" : 0.5,
+        "p_cross": 0.5
     }
 }
