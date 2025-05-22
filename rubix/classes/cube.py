@@ -1,6 +1,5 @@
-from typing import Tuple
-from functools import total_ordering
 import torch
+from functools import total_ordering
 
 @total_ordering
 class Rubix:

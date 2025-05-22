@@ -28,7 +28,7 @@ from rubix.loader import load_data
 from rubix.processor import process_data
 from rubix.classes.solver import Solver
 
-
+#FIXME: SOlve the argparser issues.
 def get_args(
         
 ) -> argparse.Namespace:
@@ -38,15 +38,14 @@ def get_args(
 
     Returns:
         argparse.Namespace: Parsed arguments, including:
-            test (str): A test argument for demonstration or debugging.
+            path (str): The path to a configuration file.
     """ 
 
     parser = argparse.ArgumentParser(description="Run the optimization solver")
     parser.add_argument(
-        "--test", 
+        "--path", 
         type=str, 
-        default="Hello World!", 
-        help="Test args"
+        help="Path to a configuration file"
     )
     return parser.parse_args()
 
@@ -68,15 +67,18 @@ def main(
     Returns:
         None
     """
+    config_path = f"rubix.configs/{kwargs.get('path', 'hill_climber_config.json')}"
 
     # Load the data from the provided path
     dataset = load_data(
-        path=DATA_V1, 
-        config_path="rubix.configs/rubix_search_config.json"
+        path=DATA_V1,
+        config_path = config_path
     )
 
     # Process the data to the necessary shape
     dataset = process_data(dataset)
+    
+    print(dataset)
     
     # Initialize the solver
     solver = Solver(
@@ -93,4 +95,5 @@ def main(
     print(dataset, result)
 
 if __name__ == "__main__":
-    main()
+    args = get_args()
+    main(**vars(args))
