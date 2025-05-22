@@ -9,7 +9,6 @@ STRATEGY_NAMES = [
     'rubix_evolve'
 ]
 
-
 import numpy as np
 from rubix.classes.cube import Rubix
 from rubix.functions.operators import apply_operator
@@ -24,6 +23,8 @@ def random_search(
     # Initialize
     n_iter = params['n_iter']
     best_cube = cube
+    Rubix.historic_fitness.append(best_cube.rubix_fitness)
+
 
     print(f"Running for {n_iter} iterations.")
 
@@ -37,6 +38,8 @@ def random_search(
         # Update the best solution if fitness improves
         if new_cube < best_cube:
             best_cube = new_cube
+            if best_cube < Rubix.historic_fitness[-1]:
+                Rubix.historic_fitness.append(best_cube.rubix_fitness)
             
     return best_cube
 
@@ -47,9 +50,10 @@ def hill_climber(
     
     n_iter = params.get('n_iter', 1e9)
     max_patience = params.get('patience', 100)
-    
-    best_cube = cube
     patience = max_patience
+
+    best_cube = cube
+    Rubix.historic_fitness.append(best_cube.rubix_fitness)
 
     for epoch in range(n_iter):
         if patience == 0:
@@ -64,11 +68,14 @@ def hill_climber(
         if new_cube < best_cube:
             best_cube = new_cube
             patience = max_patience
-            print(best_cube)
+            
+            if best_cube < Rubix.historic_fitness[-1]:
+                Rubix.historic_fitness.append(best_cube.rubix_fitness)
+            
         else:
             patience -= 1
 
-    return best_cube
+    return best_cube, Rubix.historic_fitness
 
 def annealer(
     cube: Rubix,
@@ -81,6 +88,7 @@ def annealer(
     k = params['k']
     tol = params['tol']
     best_cube = cube
+    Rubix.historic_fitness.append(best_cube.rubix_fitness)
     
     k = 1
     improve_threshold = 0.5
@@ -109,14 +117,15 @@ def annealer(
             )
 
             best_cube = new_cube
-
+            if best_cube < Rubix.historic_fitness[-1]:
+                Rubix.historic_fitness.append(best_cube.rubix_fitness)
         else:
             decay_rate = base_decay
 
         temperature *= (1 - decay_rate)
         print(best_cube, temperature)
 
-    return best_cube
+    return best_cube, Rubix.historic_fitness
 
 def rubix_search(
     cube: Rubix,
@@ -130,6 +139,7 @@ def rubix_search(
 
     # Initialize the population (cube)
     best_cube = cube
+    Rubix.historic_fitness.append(best_cube.rubix_fitness)
     
     for epoch in range(epochs):
 
@@ -144,12 +154,14 @@ def rubix_search(
             # Update the best solution if fitness improves
             if new_cube < best_cube:
                 best_cube = new_cube
+                if best_cube < Rubix.historic_fitness[-1]:
+                    Rubix.historic_fitness.append(best_cube.rubix_fitness)
                 patience = params['patience']
-
+            
             else:
                 patience -= 1
             
-    return best_cube
+    return best_cube, Rubix.historic_fitness
 
 def genetic_evolver(
     cube: Rubix,
@@ -163,7 +175,8 @@ def genetic_evolver(
 
     # Initialize the population (cube)
     best_cube = cube
-    
+    Rubix.historic_fitness.append(best_cube.rubix_fitness)
+
     for epoch in range(epochs):
 
         if patience != 0:
@@ -183,10 +196,13 @@ def genetic_evolver(
                 best_cube = new_cube
                 patience = params['patience']
 
+                if best_cube < Rubix.historic_fitness[-1]:
+                    Rubix.historic_fitness.append(best_cube.rubix_fitness)
+                    
             else:
                 patience -= 1
             
-    return best_cube
+    return best_cube, Rubix.historic_fitness
 
 def rubix_evolver(
     cube: Rubix,
@@ -199,7 +215,8 @@ def rubix_evolver(
 
     # Initialize the population (cube)
     best_cube = cube
-    
+    Rubix.historic_fitness.append(best_cube.rubix_fitness)
+
     for epoch in range(epochs):
 
         if patience != 0:
@@ -215,10 +232,13 @@ def rubix_evolver(
                 best_cube = new_cube
                 patience = params['patience']
 
+                if best_cube < Rubix.historic_fitness[-1]:
+                    Rubix.historic_fitness.append(best_cube.rubix_fitness)
+
             else:
                 patience -= 1
             
-    return best_cube
+    return best_cube, Rubix.historic_fitness
 
 STRATEGY = \
     dict(

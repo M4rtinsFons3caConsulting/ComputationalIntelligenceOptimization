@@ -49,11 +49,11 @@ def _get_slice_map(
 
     return slice_map
 
-
 def _get_cube_map():
     """Calculates a crossover map for a population of cubes"""
+    pass
 
-def slice_crossover(
+def slice_crossover(    
     cube: torch.Tensor,
     mapping: Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
 ) -> Rubix:

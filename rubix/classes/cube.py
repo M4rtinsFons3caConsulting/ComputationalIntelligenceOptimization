@@ -35,7 +35,12 @@ class Rubix:
 
     # __lt__ is defined to proc, total ordering
     def __lt__(self, other) -> bool:
-        return self.rubix_fitness < other.rubix_fitness
+        if isinstance(other, Rubix):
+            return self.rubix_fitness < other.rubix_fitness
+        try:
+            return self.rubix_fitness < other
+        except Exception:
+            raise AttributeError("Error comparing rubix to {other}.")
 
     @classmethod
     def class_setup(cls, seed, costs, layout) -> None: 
@@ -45,6 +50,7 @@ class Rubix:
         cls.block_ranges = layout["block_ranges"]
         cls.valid_swaps = [i for i, (start, end) in enumerate(cls.block_ranges) if (end - start) > 1]
         cls.cost_arrays = costs 
+        cls.historic_fitness = []
      
     @classmethod
     def initialize(

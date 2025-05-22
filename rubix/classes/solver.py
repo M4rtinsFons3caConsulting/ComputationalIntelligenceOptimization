@@ -1,6 +1,7 @@
 from typing import Any, Dict
-from rubix.classes.cube import Rubix
+import torch
 from torch import Tensor
+from rubix.classes.cube import Rubix
 from rubix.functions.solver_strategies import STRATEGY
 
 class Solver:
@@ -56,11 +57,14 @@ class Solver:
 
         strategy_fn = STRATEGY[self.solver_params["strategy"]]
 
-        return strategy_fn(
-            Rubix.initialize(), 
+        solution, solution_history = strategy_fn(
+            Rubix.initialize(),
             self.solver_params
         )
 
-
+        # Parse history to list
+        solution_history = torch.stack(solution_history).numpy().tolist()
+    
+        return solution, solution_history
 
 

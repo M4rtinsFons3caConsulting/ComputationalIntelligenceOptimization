@@ -21,24 +21,14 @@ window defines the operational subspace in which valid team configurations are e
 
 """
 
-import sys
-import argparse
 from typing import Any
-from rubix.constants import DATA_V1
+import torch
+
 from rubix.loader import load_data
 from rubix.processor import process_data
 from rubix.classes.solver import Solver
 
-def get_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the optimization solver")
-    parser.add_argument(
-        "--path", 
-        type=str,
-        help="Path to a configuration file"
-    )
-    return parser.parse_args()
-
-def main(
+def run(
     **kwargs: dict[str, Any]
 ) -> None:
     
@@ -50,24 +40,26 @@ def main(
     include optional parameters for the solver or runtime configuration.
 
     Expected kwargs:
-        path (str): Optional path to the input dataset. Defaults to DATA_V1.
+        data_path (str): Path to dataset
+        config_path (str): Path to configuration file.
 
     Returns:
-        None
+        DataSet, Result
     """
 
-    path = kwargs.pop('path') or 'hill_climber_config.json'
-    config_path = f"rubix.configs/{path}"
+    data_path = kwargs.pop('data_path', None)
+    config_path = f"rubix.configs/{kwargs.pop('path',  'hill_climber_config.json')}"
 
     # Load the data from the provided path
     dataset = load_data(
-        path=DATA_V1,
+        path=data_path,
         config_path = config_path
     )
 
     # Process the data to the necessary shape
     dataset = process_data(dataset)
     
+    # Print the resulting dataset object.
     print(dataset)
     
     # Initialize the solver
@@ -79,24 +71,9 @@ def main(
     )
 
     # Solve the problem
-    solution, history = solver.solve(**kwargs)
+    result, history = solver.solve(**kwargs)
 
-    # Print final solution
-    print(dataset, solution, history)
+    # Parse history to list
+    history = torch.stack(history).numpy().tolist()
 
-
-# For rubix main executions
-if __name__ == "rubix.main":
-    sys.exit(
-        main(
-            **vars(get_args())
-        )
-    )
-
-# FIXME: Currently does not work
-# For CLI execution
-elif __name__ == "__main__":
-    args = get_args()
-    main(**vars(args))
-
-    
+    return dataset, result, history
