@@ -30,7 +30,7 @@ def _get_cutoff_map(**kwargs):
     num_blocks = len(Rubix.block_ranges)
 
     flags = (torch.rand((n_pairs, num_blocks)) < p_cross).bool()
-    cuts = torch.randint(0, H, (n_pairs, num_blocks))
+    cuts = torch.randint(0, H - 1, (n_pairs, num_blocks))
 
     return flags, cuts
 
