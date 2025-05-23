@@ -72,38 +72,43 @@ def block_crossover(
 
 def cutoff_crossover(
     cube: torch.Tensor,
-    mapping: tuple[torch.BoolTensor, torch.Tensor]
+    mapping: torch.Tensor
 ) -> torch.Tensor:
+    
     """
-    Perform cutoff crossover on cube pairs given block-wise cutoff mapping.
-
-    Args:
-        cube: Tensor of shape [2*n_pairs, H, W]
-        mapping: A tuple (flags, cuts) where
-            - flags is a BoolTensor of shape [n_pairs, n_blocks],
-              flags[i, b] == True means “do crossover for pair i on block b”
-            - cuts is an IntTensor of shape [n_pairs, n_blocks],
-              cuts[i, b] is the cutoff row index (0 <= cuts < H)
-
-    Returns:
-        offspring tensor of the same shape as cube.
+    Applies Order Crossover (OX) to ensure permutation validity.
+    Input:
+        cube: [2*num_pairs, N] (1D permutations)
+        mapping: [num_pairs] (boolean mask if crossover should happen)
+    Output:
+        offspring: [2*num_pairs, N]
     """
+
     parents = cube.clone()
-    flags, cuts = mapping
+    num_pairs = mapping.size(0)
+    N = parents.size(1)
 
-    n_pairs, _ = flags.shape
-    for i in range(n_pairs):
+    def ox(p1: torch.Tensor, p2: torch.Tensor) -> torch.Tensor:
+        start, end = sorted(torch.randint(0, N, (2,)).tolist())
+        child = -torch.ones(N, dtype=torch.int64)
+        child[start:end+1] = p1[start:end+1]
+        fill = [x for x in p2.tolist() if x not in child]
+        j = 0
+        for i in range(N):
+            if child[i] == -1:
+                child[i] = fill[j]
+                j += 1
+        return child
+
+    for i in range(num_pairs):
         idx1, idx2 = 2 * i, 2 * i + 1
-        for b, (start, end) in enumerate(Rubix.block_ranges):
-            if flags[i, b]:
-                # inclusive cutoff: rows [0 .. cutoff]
-                cutoff = cuts[i, b].item()
-                # swap the block region up to the cutoff row
-                tmp = parents[idx1, : cutoff + 1, start:end].clone()
-                parents[idx1, : cutoff + 1, start:end] = parents[idx2, : cutoff + 1, start:end]
-                parents[idx2, : cutoff + 1, start:end] = tmp
+        if mapping[i]:  # only crossover if mapping[i] is True
+            p1, p2 = parents[idx1], parents[idx2]
+            parents[idx1] = ox(p1, p2)
+            parents[idx2] = ox(p2, p1)
 
     return parents
+
 
 # Operator Mapping and Dispatch
 CROSSOVER_STRATEGIES = {
