@@ -120,6 +120,7 @@ def annealer(
             decay_rate = base_decay
 
         temperature *= (1 - decay_rate)
+        
         Rubix.historic_fitness.append(best_cube.rubix_fitness)        
 
     return best_cube, Rubix.historic_fitness
@@ -151,14 +152,14 @@ def rubix_search(
             # Update the best solution if fitness improves
             if new_cube < best_cube:
                 best_cube = new_cube
-                if best_cube < Rubix.historic_fitness[-1]:
-                    Rubix.historic_fitness.append(best_cube.rubix_fitness)
 
                 patience = params['patience']
             
             else:
                 patience -= 1
-            
+
+        Rubix.historic_fitness.append(best_cube.rubix_fitness)
+    
     return best_cube, Rubix.historic_fitness
 
 def genetic_evolver(
