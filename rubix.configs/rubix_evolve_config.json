@@ -17,6 +17,7 @@
     "solver_kwargs" :
     {   
         "strategy": "rubix_evolve",
+        "operator_type": "rubix",
         "n": 100,
         "n_pairs": 50,
         "epochs": 200,

@@ -21,6 +21,7 @@
         "n_pairs": 50,
         "epochs": 200,
         "patience": 50,
+        "operator_type": "rubix",
         "select_type": "tournament",
         "vs_type": "probabilistic",
         "x_strategy": "slice_crossover",

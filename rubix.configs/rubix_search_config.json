@@ -17,6 +17,7 @@
     "solver_kwargs" :
     {
         "strategy": "rubix_search",
+        "operator_type": "rubix",
         "n": 100,
         "epochs": 1000,
         "patience": 100,

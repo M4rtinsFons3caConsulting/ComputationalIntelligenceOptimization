@@ -17,6 +17,7 @@
     "solver_kwargs" :
     {   
         "strategy": "greedy",
+        "operator_type": "greedy",
         "n": 100,
         "n_iter" : 100,
         "patience": 1e3

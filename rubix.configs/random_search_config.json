@@ -17,6 +17,7 @@
     "solver_kwargs" :
     {   
         "strategy": "random",
+        "operator_type": "random",
         "n": 100,
         "n_iter" : 10
     }

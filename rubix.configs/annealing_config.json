@@ -17,6 +17,7 @@
     "solver_kwargs" :
     {
         "strategy": "annealing",
+        "operator": "anneal",
         "n": 100,
         "temperature": 1.0,
         "decay_rate": 1e-2,

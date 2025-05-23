@@ -306,7 +306,7 @@ OPERATOR_STRATEGIES = {
     'greedy': (greedy_operator, _get_greedy_map),
     'permute': (permute_operator, _get_permute_map),
     'roll': (roll_operator, _get_roll_map),
-    'annealing': (rubix_operator, _get_annealing_map),
+    'anneal': (rubix_operator, _get_annealing_map),
     'rubix': (rubix_operator, _get_rubix_map)
 }
 
@@ -331,7 +331,7 @@ def apply_operator(
     kwargs['block_ranges'] = Rubix.block_ranges
     kwargs['valid_swaps'] = Rubix.valid_swaps
 
-    operator, mapping_fn = OPERATOR_STRATEGIES[kwargs['operator']]
+    operator, mapping_fn = OPERATOR_STRATEGIES[kwargs['operator_type']]
     
     if mapping_fn:
         mapping = mapping_fn(**kwargs)
