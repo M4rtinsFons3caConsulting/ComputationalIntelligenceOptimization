@@ -16,12 +16,15 @@
     },
     "solver_kwargs" :
     {   
-        "strategy": "rubix_search",
+        "strategy": "rubix_evolve",
         "n": 100,
-        "epochs": 1000,
-        "patience": 100,
+        "n_pairs": 50,
+        "epochs": 200,
+        "patience": 50,
+        "select_type": "poison",
+        "x_strategy": "cube_crossover",
+        "p_mutation": 0.1,
         "p_roll": 0.5,
-        "p_swap" : 0.5,
-        "p_cross": 0.5
+        "p_swap" : 0.5
     }
 }

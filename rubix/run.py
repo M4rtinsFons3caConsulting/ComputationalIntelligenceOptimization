@@ -29,7 +29,8 @@ from rubix.processor import process_data
 from rubix.classes.solver import Solver
 
 def run(
-    **kwargs: dict[str, Any]
+    data_path: str,
+    config_file:str
 ) -> None:
     
     """
@@ -47,8 +48,7 @@ def run(
         DataSet, Result
     """
 
-    data_path = kwargs.pop('data_path', None)
-    config_path = f"rubix.configs/{kwargs.pop('path',  'hill_climber_config.json')}"
+    config_path = f"../rubix.configs/{config_file}"
 
     # Load the data from the provided path
     dataset = load_data(
@@ -71,7 +71,7 @@ def run(
     )
 
     # Solve the problem
-    result, history = solver.solve(**kwargs)
+    result, history = solver.solve()
 
     # Parse history to list
     history = torch.stack(history).numpy().tolist()

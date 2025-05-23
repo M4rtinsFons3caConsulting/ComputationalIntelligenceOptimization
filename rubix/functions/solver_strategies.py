@@ -226,35 +226,38 @@ def rubix_evolver(
     cube: Rubix,
     params: dict
 ) -> Rubix:
+    
     epochs = params['epochs']
     patience = params['patience']
-
+    prob_mutation = params['p_mutation']
+    
     print(f"Running for {epochs} iterations.")
 
     # Initialize the population (cube)
     best_cube = cube
     Rubix.historic_fitness.append(best_cube.rubix_fitness)
+    cube_population = [best_cube]
 
     for epoch in range(epochs):
-
-        if patience != 0:
-            print(f"Epoch {epoch + 1}/{epochs}...")
+        for cube in cube_population:
+            if patience != 0:
+                print(f"Epoch {epoch + 1}/{epochs}...")
+                
+                new_cube = apply_operator(
+                    best_cube.solutions,
+                    **params
+                )
             
-            new_cube = apply_operator(
-                best_cube.solutions,
-                **params
-            )
-           
-            # Update the best solution if fitness improves
-            if new_cube < best_cube:
-                best_cube = new_cube
-                patience = params['patience']
+                # Update the best solution if fitness improves
+                if new_cube < best_cube:
+                    best_cube = new_cube
+                    patience = params['patience']
 
-                if best_cube < Rubix.historic_fitness[-1]:
-                    Rubix.historic_fitness.append(best_cube.rubix_fitness)
+                    if best_cube < Rubix.historic_fitness[-1]:
+                        Rubix.historic_fitness.append(best_cube.rubix_fitness)
 
-            else:
-                patience -= 1
+                else:
+                    patience -= 1
             
     return best_cube, Rubix.historic_fitness
 

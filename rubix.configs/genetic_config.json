@@ -30,6 +30,5 @@
         "p_mutation": 0.1,
         "p_roll": 0.5,
         "p_swap" : 0.5
-        
     }
 }
