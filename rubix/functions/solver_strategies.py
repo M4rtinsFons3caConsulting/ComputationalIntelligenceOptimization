@@ -171,8 +171,13 @@ def genetic_evolver(
     patience = params['patience']
     prob_mutation = params['p_mutation']
 
+    elitism = False
     if params['elitism']:
         elitism = params['elitism']
+        if elitism == 1:
+            elitism = True
+        else:
+            elitism = False
     
     print(f"Running for {epochs} iterations.")
 
@@ -193,11 +198,11 @@ def genetic_evolver(
 
             if elitism:
                 # Get top `elitism` indices from full population
-                elite_indices = torch.topk(best_cube.slice_fitnesses, elitism, largest=False).indices
+                elite_indices = torch.topk(best_cube.slice_fitnesses, 1, largest=False).indices
 
                 # Replace the worst `elitism` individuals in `selected`
                 worst_indices = torch.topk(
-                    best_cube.slice_fitnesses[selected], elitism, largest=True
+                    best_cube.slice_fitnesses[selected], 1, largest=True
                 ).indices
 
                 for i, w_idx in enumerate(worst_indices):

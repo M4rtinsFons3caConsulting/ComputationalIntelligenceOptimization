@@ -87,7 +87,7 @@ def run_grid(
     with open(config_path, 'r') as f:
         config = json.load(f)
     
-    # Apply overrides
+    # Apply new parameters
     if dynamic_params:
         config['solver_kwargs'].update(dynamic_params)
 
@@ -98,6 +98,6 @@ def run_grid(
 
     dataset, result, history = run(data_path=data_path, config_file=tmp_path)
 
-    os.remove(f"{config_folder}{tmp_path}")
+    os.remove(tmp.name)
 
     return dataset, result, history
