@@ -26,7 +26,7 @@
         "x_strategy": "slice_crossover",
         "vs_size": 2,
         "elitism": 1,
-        "p_cross": 0.1,
+        "p_cross": 0.8,
         "p_mutation": 0.1,
         "p_roll": 0.5,
         "p_swap" : 0.5

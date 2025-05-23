@@ -6,17 +6,18 @@ Author: Group AI - MsC in Data Science @NovaIMS 2024/2025
 License-Expression: MIT
 Description-Content-Type: text/markdown
 License-File: LICENSE
-Requires-Dist: numpy
-Requires-Dist: numba
-Requires-Dist: scipy
 Requires-Dist: openpyxl
+Requires-Dist: pandas
+Requires-Dist: numpy
 Requires-Dist: matplotlib
-Requires-Dist: ipykernel
 Requires-Dist: seaborn
+Requires-Dist: ipykernel
+Requires-Dist: plotly
+Requires-Dist: torch
 Dynamic: license-file
 
 DISCLAIMER: Much of this README.md has been generated automaticall and is still under revision. 
-
+# TODO: RERWITE THIS THING!! :D
 # Computational Intelligence Optimization (RuBiX)
 
 RuBiX is a Numba-optimized Genetic Algorithm Framework designed for solving combinatorial problems. It offers efficient and scalable solutions by leveraging modern computational techniques.

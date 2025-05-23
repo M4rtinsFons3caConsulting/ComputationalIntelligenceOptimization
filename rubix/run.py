@@ -21,8 +21,9 @@ window defines the operational subspace in which valid team configurations are e
 
 """
 
-from typing import Any
-import torch
+import os
+import tempfile
+import json
 
 from rubix.loader import load_data
 from rubix.processor import process_data
@@ -30,7 +31,7 @@ from rubix.classes.solver import Solver
 
 def run(
     data_path: str,
-    config_file:str
+    config_file: str
 ) -> None:
     
     """
@@ -42,12 +43,11 @@ def run(
 
     Expected kwargs:
         data_path (str): Path to dataset
-        config_path (str): Path to configuration file.
+        config_file (str): Filename of configuration file.
 
     Returns:
         DataSet, Result
     """
-
     config_path = f"../rubix.configs/{config_file}"
 
     # Load the data from the provided path
@@ -73,7 +73,31 @@ def run(
     # Solve the problem
     result, history = solver.solve()
 
-    # Parse history to list
-    history = torch.stack(history).numpy().tolist()
+    return dataset, result, history
+
+
+def run_grid(
+    data_path: str,
+    config_file: str,
+    dynamic_params: dict = None
+) -> None:
+    config_folder = "../rubix.configs/"
+    config_path = f"{config_folder}{config_file}"
+
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    
+    # Apply overrides
+    if dynamic_params:
+        config['solver_kwargs'].update(dynamic_params)
+
+    # Write modified config to a temporary file
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', dir=config_folder, delete=False) as tmp:
+        json.dump(config, tmp)
+        tmp_path = os.path.basename(tmp.name)
+
+    dataset, result, history = run(data_path=data_path, config_file=tmp_path)
+
+    os.remove(f"{config_folder}{tmp_path}")
 
     return dataset, result, history

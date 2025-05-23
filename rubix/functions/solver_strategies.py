@@ -42,7 +42,7 @@ def random_search(
             if best_cube < Rubix.historic_fitness[-1]:
                 Rubix.historic_fitness.append(best_cube.rubix_fitness)
             
-    return best_cube
+    return best_cube, Rubix.historic_fitness
 
 def hill_climber(
     cube: Rubix,

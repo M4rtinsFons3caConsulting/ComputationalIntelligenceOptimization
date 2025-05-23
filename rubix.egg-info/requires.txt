@@ -1,7 +1,8 @@
-numpy
-numba
-scipy
 openpyxl
+pandas
+numpy
 matplotlib
-ipykernel
 seaborn
+ipykernel
+plotly
+torch

@@ -6,6 +6,7 @@ rubix/constants.py
 rubix/exceptions.py
 rubix/loader.py
 rubix/main.py
+rubix/processor.py
 rubix.egg-info/PKG-INFO
 rubix.egg-info/SOURCES.txt
 rubix.egg-info/dependency_links.txt
