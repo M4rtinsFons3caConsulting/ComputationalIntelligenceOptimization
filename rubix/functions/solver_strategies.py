@@ -191,6 +191,18 @@ def genetic_evolver(
                 **params
             )
 
+            if elitism:
+                # Get top `elitism` indices from full population
+                elite_indices = torch.topk(best_cube.slice_fitnesses, elitism, largest=False).indices
+
+                # Replace the worst `elitism` individuals in `selected`
+                worst_indices = torch.topk(
+                    best_cube.slice_fitnesses[selected], elitism, largest=True
+                ).indices
+
+                for i, w_idx in enumerate(worst_indices):
+                    selected[w_idx] = elite_indices[i]
+                
             # Apply crossover
             new_slices = apply_crossover(
                 best_cube.solutions[selected],
