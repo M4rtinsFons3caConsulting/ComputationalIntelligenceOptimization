@@ -24,7 +24,7 @@
         "operator_type": "rubix",
         "select_type": "tournament",
         "vs_type": "probabilistic",
-        "x_strategy": "cutoff_crossover",
+        "x_strategy": "block_crossover",
         "vs_size": 2,
         "elitism": 1,
         "p_cross": 0.8,

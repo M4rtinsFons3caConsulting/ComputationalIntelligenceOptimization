@@ -23,23 +23,14 @@ def _get_slice_map(
 
     return slice_map
 
-def _get_cutoff_map(**kwargs) -> torch.Tensor:
-
-    """
-    Generates a cutoff crossover map.
-    Returns a tensor of shape [num_pairs, num_blocks, 2] where:
-        - map[i, j, 0] is a boolean (True if crossover happens for pair i at block j),
-        - map[i, j, 1] is the cutoff row (0 <= cutoff < H) for that block in that pair.
-    """
-    
+def _get_cutoff_map(**kwargs):
     n_pairs = kwargs['n_pairs']
     p_cross = kwargs['p_cross']
     H = Rubix.shape[1]
     num_blocks = len(Rubix.block_ranges)
 
-    # Keep flags as bool
-    flags = torch.rand((n_pairs, num_blocks)) < p_cross        # bool
-    cuts  = torch.randint(0, H, (n_pairs, num_blocks))         # int64
+    flags = (torch.rand((n_pairs, num_blocks)) < p_cross).bool()
+    cuts = torch.randint(0, H, (n_pairs, num_blocks))
 
     return flags, cuts
 
@@ -72,24 +63,26 @@ def block_crossover(
 
 def cutoff_crossover(
     cube: torch.Tensor,
-    mapping: torch.Tensor
+    mapping: tuple
 ) -> torch.Tensor:
-    
     """
     Applies Order Crossover (OX) to ensure permutation validity.
     Input:
         cube: [2*num_pairs, N] (1D permutations)
-        mapping: [num_pairs] (boolean mask if crossover should happen)
+        mapping: tuple of (flags, cuts)
+            - flags: [num_pairs, num_blocks] (bool mask per block)
+            - cuts: [num_pairs, num_blocks] (cutoff per block)
     Output:
         offspring: [2*num_pairs, N]
     """
+    flags, cuts = mapping
+    num_pairs = flags.size(0)
+    num_blocks = flags.size(1)
 
     parents = cube.clone()
-    num_pairs = mapping.size(0)
     N = parents.size(1)
 
-    def ox(p1: torch.Tensor, p2: torch.Tensor) -> torch.Tensor:
-        start, end = sorted(torch.randint(0, N, (2,)).tolist())
+    def ox(p1: torch.Tensor, p2: torch.Tensor, start: int, end: int) -> torch.Tensor:
         child = -torch.ones(N, dtype=torch.int64)
         child[start:end+1] = p1[start:end+1]
         fill = [x for x in p2.tolist() if x not in child]
@@ -102,13 +95,15 @@ def cutoff_crossover(
 
     for i in range(num_pairs):
         idx1, idx2 = 2 * i, 2 * i + 1
-        if mapping[i]:  # only crossover if mapping[i] is True
-            p1, p2 = parents[idx1], parents[idx2]
-            parents[idx1] = ox(p1, p2)
-            parents[idx2] = ox(p2, p1)
+        for j in range(num_blocks):
+            if flags[i, j]:
+                cutoff = cuts[i, j].item()
+                # Define crossover region as [0, cutoff]
+                p1, p2 = parents[idx1], parents[idx2]
+                parents[idx1] = ox(p1, p2, 0, cutoff)
+                parents[idx2] = ox(p2, p1, 0, cutoff)
 
     return parents
-
 
 # Operator Mapping and Dispatch
 CROSSOVER_STRATEGIES = {
