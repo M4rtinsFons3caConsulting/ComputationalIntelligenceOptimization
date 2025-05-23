@@ -331,7 +331,7 @@ def apply_operator(
     kwargs['block_ranges'] = Rubix.block_ranges
     kwargs['valid_swaps'] = Rubix.valid_swaps
 
-    operator, mapping_fn = OPERATOR_STRATEGIES[kwargs['strategy']]
+    operator, mapping_fn = OPERATOR_STRATEGIES[kwargs['operator']]
     
     if mapping_fn:
         mapping = mapping_fn(**kwargs)
