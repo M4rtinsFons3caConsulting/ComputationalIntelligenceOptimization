@@ -48,7 +48,6 @@ def run(
     Returns:
         DataSet, Result
     """
-
     config_path = f"../rubix.configs/{config_file}"
 
     # Load the data from the provided path
@@ -72,10 +71,9 @@ def run(
     )
 
     # Solve the problem
-    solution, history = solver.solve()
+    result, history = solver.solve()
 
-    # Print final solution
-    print(dataset, solution, history)
+    return dataset, result, history
 
 
 def run_grid(
