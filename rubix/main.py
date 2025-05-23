@@ -79,7 +79,7 @@ def main(
     )
 
     # Solve the problem
-    solution, history = solver.solve(**kwargs)
+    solution, history = solver.solve()
 
     # Print final solution
     print(dataset, solution, history)

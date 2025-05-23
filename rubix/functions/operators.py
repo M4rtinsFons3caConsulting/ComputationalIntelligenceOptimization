@@ -143,6 +143,23 @@ def _get_rubix_map(
     # Return the generated mappings
     return roll_map, swap_map, mode_map
 
+def _get_roll_map(**kwargs) -> Tuple[torch.Tensor, torch.Tensor]:
+
+    _, H, W = kwargs['shape']
+    roll_prob = kwargs.get("p_roll", 0.5)
+
+    col_map = torch.arange(W)[torch.rand(W) < roll_prob]
+    shifts = torch.randint(1, H, size=(len(col_map),), dtype=torch.int64)
+
+    return col_map, shifts
+
+def _get_permute_map(**kwargs) -> torch.Tensor:
+    _, _, W = kwargs['shape']
+    permute_prob = kwargs.get("p_permute", 0.5)
+
+    col_map = torch.arange(W)[torch.rand(W) < permute_prob]
+    return col_map
+
 # Operators
 def random_operator(
 ) -> Rubix:
@@ -204,6 +221,33 @@ def greedy_operator(
 
     return Rubix(new_cube)
 
+def permute_operator(
+    cube: torch.Tensor, 
+    col_map: torch.Tensor
+) -> Rubix:
+    
+    new_cube = cube.clone()
+    n, H, _ = Rubix.shape
+
+    for c in col_map:
+        for m in range(n):
+            new_cube[m, :, c] = new_cube[m, :, c][torch.randperm(H)]
+
+    return Rubix(new_cube)
+
+def roll_operator(
+    cube: torch.Tensor, 
+    mapping: Tuple[torch.Tensor, torch.Tensor]
+) -> Rubix:
+    
+    col_map, shifts = mapping
+    new_cube = cube.clone()
+
+    for c, s in zip(col_map, shifts):
+        new_cube[:, :, c] = torch.roll(new_cube[:, :, c], shifts=s.item(), dims=1)
+
+    return Rubix(new_cube)
+
 def rubix_operator(
     cube: torch.Tensor,
     mapping: Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
@@ -257,54 +301,40 @@ def rubix_operator(
     return Rubix(new_cube)
 
 # Operator Mapping
-OperatorEntry = namedtuple('OperatorEntry', ['operator', 'mapping'])
+OPERATOR_STRATEGIES = {
+    'random': (random_operator, None),
+    'greedy': (greedy_operator, _get_greedy_map),
+    'permute': (permute_operator, _get_permute_map),
+    'roll': (roll_operator, _get_roll_map),
+    'annealing': (rubix_operator, _get_annealing_map),
+    'rubix': (rubix_operator, _get_rubix_map)
+}
 
-operator_mapping = dict(
-    zip(
-        STRATEGY_NAMES,
-        [
-          OperatorEntry(random_operator, None),
-          OperatorEntry(greedy_operator, _get_greedy_map),
-          OperatorEntry(rubix_operator, _get_annealing_map),
-          OperatorEntry(rubix_operator, _get_rubix_map),
-          OperatorEntry(rubix_operator, _get_rubix_map),
-          OperatorEntry(rubix_operator, _get_rubix_map)
-        ]
-    )
-)
-
-# Apply
+# APply operator
 def apply_operator(
     cube: torch.Tensor,
     **kwargs
 ) -> Rubix:
-    
     """
-    Apply an operator based on a specified strategy to a Rubix cube.
+    Apply a Rubix operator by strategy key.
 
     Args:
-        cube: Rubix cube instance to operate on.
-        strategy: String key identifying the operator strategy to use.
-        **kwargs: Additional keyword arguments passed to the operator.
+        cube: Rubix cube tensor instance.
+        strategy: Operator strategy key.
+        **kwargs: Additional parameters for the mapping function.
 
     Returns:
-        The resulting Rubix cube instance after applying the selected operator.
-
+        A new Rubix instance after applying the operator.
     """
-
-    kwargs['shape']= Rubix.shape
+    kwargs['shape'] = Rubix.shape
     kwargs['block_indices'] = Rubix.block_indices
     kwargs['block_ranges'] = Rubix.block_ranges
     kwargs['valid_swaps'] = Rubix.valid_swaps
 
-    entry = operator_mapping[kwargs['strategy']]
+    operator, mapping_fn = OPERATOR_STRATEGIES[kwargs['strategy']]
     
-    if entry.mapping:
-        mapping = entry.mapping(
-            **kwargs
-        )
-        return entry.operator(cube, mapping)
-    
+    if mapping_fn:
+        mapping = mapping_fn(**kwargs)
+        return operator(cube, mapping)
     else:
-        return entry.operator()
-    
+        return operator()
