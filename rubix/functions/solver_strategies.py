@@ -238,6 +238,7 @@ def rubix_evolver(
     params: dict
 ) -> Rubix:
     
+    raise('Under development')
     epochs = params['epochs']
     patience = params['patience']
     prob_mutation = params['p_mutation']

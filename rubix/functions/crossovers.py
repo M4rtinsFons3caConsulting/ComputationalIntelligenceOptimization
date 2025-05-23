@@ -23,11 +23,27 @@ def _get_slice_map(
 
     return slice_map
 
-def _get_cube_map():
-    """Calculates a crossover map for a population of cubes"""
-    pass
+def _get_cutoff_map(**kwargs) -> torch.Tensor:
 
-def slice_crossover(    
+    """
+    Generates a cutoff crossover map.
+    Returns a tensor of shape [num_pairs, num_blocks, 2] where:
+        - map[i, j, 0] is a boolean (True if crossover happens for pair i at block j),
+        - map[i, j, 1] is the cutoff row (0 <= cutoff < H) for that block in that pair.
+    """
+    
+    n_pairs = kwargs['n_pairs']
+    p_cross = kwargs['p_cross']
+    H = Rubix.shape[1]
+    num_blocks = len(Rubix.block_ranges)
+
+    # Keep flags as bool
+    flags = torch.rand((n_pairs, num_blocks)) < p_cross        # bool
+    cuts  = torch.randint(0, H, (n_pairs, num_blocks))         # int64
+
+    return flags, cuts
+
+def block_crossover(    
     cube: torch.Tensor,
     mapping: torch.Tensor
 ) -> torch.Tensor:
@@ -54,17 +70,45 @@ def slice_crossover(
 
     return offspring
 
-def cube_crossover(
-    indices,
-    **kwargs
-) -> Rubix:
-    """Takes a cube, chooses slices and permutes the slices"""
-    pass
+def cutoff_crossover(
+    cube: torch.Tensor,
+    mapping: tuple[torch.BoolTensor, torch.Tensor]
+) -> torch.Tensor:
+    """
+    Perform cutoff crossover on cube pairs given block-wise cutoff mapping.
+
+    Args:
+        cube: Tensor of shape [2*n_pairs, H, W]
+        mapping: A tuple (flags, cuts) where
+            - flags is a BoolTensor of shape [n_pairs, n_blocks],
+              flags[i, b] == True means “do crossover for pair i on block b”
+            - cuts is an IntTensor of shape [n_pairs, n_blocks],
+              cuts[i, b] is the cutoff row index (0 <= cuts < H)
+
+    Returns:
+        offspring tensor of the same shape as cube.
+    """
+    parents = cube.clone()
+    flags, cuts = mapping
+
+    n_pairs, _ = flags.shape
+    for i in range(n_pairs):
+        idx1, idx2 = 2 * i, 2 * i + 1
+        for b, (start, end) in enumerate(Rubix.block_ranges):
+            if flags[i, b]:
+                # inclusive cutoff: rows [0 .. cutoff]
+                cutoff = cuts[i, b].item()
+                # swap the block region up to the cutoff row
+                tmp = parents[idx1, : cutoff + 1, start:end].clone()
+                parents[idx1, : cutoff + 1, start:end] = parents[idx2, : cutoff + 1, start:end]
+                parents[idx2, : cutoff + 1, start:end] = tmp
+
+    return parents
 
 # Operator Mapping and Dispatch
 CROSSOVER_STRATEGIES = {
-    'slice_crossover': (slice_crossover, _get_slice_map),
-    'cube_crossover': (cube_crossover, _get_cube_map),
+    'block_crossover': (block_crossover, _get_slice_map),
+    'cutoff_crossover': (cutoff_crossover, _get_cutoff_map),
 }
 
 def apply_crossover(
