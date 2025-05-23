@@ -18,10 +18,18 @@
     {   
         "strategy": "genetic",
         "n": 100,
-        "epochs": 1000,
-        "patience": 100,
+        "n_pairs": 50,
+        "epochs": 200,
+        "patience": 50,
+        "select_type": "tournament",
+        "vs_type": "probabilistic",
+        "x_strategy": "slice_crossover",
+        "vs_size": 2,
+        "elitism": 1,
+        "p_cross": 0.1,
+        "p_mutation": 0.1,
         "p_roll": 0.5,
-        "p_swap" : 0.5,
-        "p_cross": 0.5
+        "p_swap" : 0.5
+        
     }
 }

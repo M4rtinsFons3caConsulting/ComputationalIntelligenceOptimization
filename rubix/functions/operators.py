@@ -289,7 +289,9 @@ def apply_operator(
 
     Returns:
         The resulting Rubix cube instance after applying the selected operator.
+
     """
+
     kwargs['shape']= Rubix.shape
     kwargs['block_indices'] = Rubix.block_indices
     kwargs['block_ranges'] = Rubix.block_ranges

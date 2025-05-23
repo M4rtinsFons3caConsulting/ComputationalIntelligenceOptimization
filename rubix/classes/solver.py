@@ -41,7 +41,9 @@ class Solver:
         # Prime the Solution constructor class
         Rubix.class_setup(seed, cost_params, layout_params)
 
-    def solve(self) -> Rubix:
+    def solve(
+        self
+    ) -> Rubix:
         
         """
         Executes the optimization process using the selected solver strategy.

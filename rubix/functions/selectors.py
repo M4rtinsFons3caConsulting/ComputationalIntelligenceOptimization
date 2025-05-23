@@ -1,58 +1,100 @@
 import torch
+from typing import List, Any
 
-def tournament():
+def _select_one(
+    fitnesses: torch.Tensor,
+    valid: torch.Tensor,
+    tournament_type: str,
+    size: int
+) -> int:
+    
     """
-    Selects individuals from a fitness population using tournament selection.
-
-    In each tournament, a subset of individuals is randomly chosen, and the one with 
-    the best fitness is selected. This process is repeated until the desired number 
-    of survivors is reached.
-
-    Returns:
-        List[int]: Indices of selected individuals.
+    Selects one individual based on the tournament type from a valid subset.
     """
-    pass
 
-def poison():
+    sampled_list = valid[torch.randperm(len(valid))[:size]].tolist()
+    valid_list = valid.tolist()
+
+    if tournament_type == 'rank':
+        valid_fitnesses = fitnesses[valid]
+        _, sorted_idx = torch.sort(valid_fitnesses)
+        ranks = torch.zeros_like(valid_fitnesses, dtype=torch.long)
+        ranks[sorted_idx] = torch.arange(len(valid_fitnesses))
+        competitors = sorted(
+            sampled_list,
+            key=lambda i: ranks[valid_list.index(i)].item()
+        )
+        return competitors[0]
+
+    elif tournament_type == 'fitness':
+        competitors = sorted(sampled_list, key=lambda i: fitnesses[i].item())
+        return competitors[0]
+
+    else:  # probabilistic
+        comp_fitnesses = fitnesses[torch.tensor(sampled_list)]
+        probs = torch.softmax(-comp_fitnesses, dim=0)
+        selected_idx = torch.multinomial(probs, 1).item()
+        return sampled_list[selected_idx]
+
+def tournament(
+    fitnesses: torch.Tensor, 
+    **kwargs: Any
+) -> List[int]:
+    
+    """
+    Selects multiple individuals using tournament selection ignoring invalid fitness (torch.inf).
+    """
+
+    n = kwargs['n']
+    tournament_type = kwargs['vs_type']
+    size = kwargs['vs_size']
+
+    valid = (fitnesses != float('inf')).nonzero(as_tuple=True)[0]
+
+    return [_select_one(fitnesses, valid, tournament_type, size) for _ in range(n)]
+
+def poison(
+    fitnesses: torch.Tensor,
+    **kwargs: Any
+) -> List[int]:
+    
     """
     Simulates a lethal environment by probabilistically eliminating individuals based on fitness.
-
-    Each individual is assigned a survival probability proportional to their fitness.
-    Individuals with lower fitness are more likely to be eliminated.
-
-    Returns:
-        List[int]: Indices of surviving individuals.
     """
-    pass
+
+    threshold = kwargs['poison_percentile']
+    sharpness = kwargs.get('poison_sharpness', 1.0)  # default sharpness
+
+    diff = fitnesses - threshold
+    death_probs = 1 / (1 + torch.exp(-sharpness * diff))
+
+    survive_mask = torch.rand_like(death_probs) > death_probs
+    survivors = survive_mask.nonzero(as_tuple=True)[0]
+
+    return survivors.tolist()
 
 def identity(
-    cube: torch.Tensor
-):
+    fitnesses: torch.Tensor
+) -> List[int]:
+    
     """
     Identity operator used for testing or bypassing selection logic.
-
-    Args:
-        cube (torch.Tensor): The full population tensor.
-
-    Returns:
-        torch.Tensor: The input population, unmodified.
     """
-    return cube
+
+    return torch.arange(fitnesses.size(0)).tolist()
+
+SELECTORS = {
+    "poison": poison,
+    "tournament": tournament,
+    "identity": identity
+}
 
 def apply_selector(
-    selector_fn, 
-    *args, 
-    **kwargs
-) -> list:
+    *args: Any, 
+    **kwargs: Any
+) -> List[int]:
+    
     """
     Applies the provided selection function to given arguments.
-
-    Args:
-        selector_fn (Callable): Selection function to apply.
-        *args: Positional arguments passed to the selector.
-        **kwargs: Keyword arguments passed to the selector.
-
-    Returns:
-        list: Result of selector function (typically a list of indices or tensors).
     """
-    return selector_fn(*args, **kwargs)
+    return SELECTORS[kwargs['select_type']](*args, **kwargs)

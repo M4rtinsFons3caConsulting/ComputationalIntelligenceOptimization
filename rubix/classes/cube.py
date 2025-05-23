@@ -88,7 +88,7 @@ class Rubix:
             solutions[i] = new_solution
         
         return cls(solutions)
-    
+
     # Instance methods
     def compute_fitness(self) -> None:
 

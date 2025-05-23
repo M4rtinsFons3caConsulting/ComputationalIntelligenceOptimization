@@ -9,6 +9,7 @@ STRATEGY_NAMES = [
     'rubix_evolve'
 ]
 
+import torch
 import numpy as np
 from rubix.classes.cube import Rubix
 from rubix.functions.operators import apply_operator
@@ -156,6 +157,7 @@ def rubix_search(
                 best_cube = new_cube
                 if best_cube < Rubix.historic_fitness[-1]:
                     Rubix.historic_fitness.append(best_cube.rubix_fitness)
+
                 patience = params['patience']
             
             else:
@@ -170,6 +172,10 @@ def genetic_evolver(
     
     epochs = params['epochs']
     patience = params['patience']
+    prob_mutation = params['p_mutation']
+
+    if params['elitism']:
+        elitism = params['elitism']
     
     print(f"Running for {epochs} iterations.")
 
@@ -182,14 +188,26 @@ def genetic_evolver(
         if patience != 0:
             print(f"Epoch {epoch + 1}/{epochs}...")
             
-            # Note: Mutation stochastics are controled inside of the operator, via kwargs. See config file.
-            new_cube = apply_operator(
-                best_cube.solutions,
+            # Apply selection
+            selected = apply_selector(
+                best_cube.slice_fitnesses,
                 **params
             )
-           
-            # TODO: apply selection
 
+            # Apply crossover
+            new_slices = apply_crossover(
+                best_cube.solutions[selected],
+                **params
+            )
+
+            # Apply mutation
+            if torch.rand(1).item() < prob_mutation:
+                new_cube = apply_operator(
+                    new_slices,
+                    **params
+                )
+            else:
+                new_cube = Rubix(new_slices)
 
             # Update the best solution if fitness improves
             if new_cube < best_cube:
