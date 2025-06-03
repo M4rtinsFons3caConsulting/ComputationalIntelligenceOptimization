@@ -17,12 +17,13 @@
     "solver_kwargs" :
     {   
         "strategy": "rubix_evolve",
-        "operator_type": "rubix",
         "n": 100,
         "n_pairs": 50,
         "epochs": 200,
         "patience": 50,
-        "select_type": "poison",
+        "operator_type": "rubix",
+        "selection_method": "poison",
+        "selection_type": "probabilistic",
         "x_strategy": "cube_crossover",
         "p_mutation": 0.1,
         "p_roll": 0.5,

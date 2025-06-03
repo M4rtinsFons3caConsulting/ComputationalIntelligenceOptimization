@@ -238,7 +238,6 @@ def rubix_evolver(
     params: dict
 ) -> Rubix:
     
-    raise('Under development')
     epochs = params['epochs']
     patience = params['patience']
     prob_mutation = params['p_mutation']
@@ -251,7 +250,25 @@ def rubix_evolver(
     cube_population = [best_cube]
 
     for epoch in range(epochs):
-        for cube in cube_population:
+        
+        # The loop:
+
+        # Select a cube that hasnt been selected from the list of current cubes.
+        # apply the rubix evolution to get a new cube, apply poison to both cubes.
+
+        ## If more than (poison percentile + difficulty_threshold) of the new cube survive, and previous 
+        ## cube was best cube, update the poison percentile threshold to match new cube at the defined 
+        ## percentile threshold individual (make survival harder).
+        
+        # Select from both cubes randomly into two new cubes, and replicate within the new cubes until 
+        # cubes are full.
+    
+        #  through tournament selection
+        # optionally: perform individual crossover
+        
+        # If patience is reached, reduce poison sharpness by factor of 2, increase percentile threshold . 
+
+        for cube in cube_population: # this needs to be put into its own function call
             if patience != 0:
                 print(f"Epoch {epoch + 1}/{epochs}...")
                 

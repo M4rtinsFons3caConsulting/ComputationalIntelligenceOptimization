@@ -1,5 +1,4 @@
-from typing import Any
-
+from typing import Tuple
 import torch
 from rubix.classes.cube import Rubix
 
@@ -23,7 +22,10 @@ def _get_slice_map(
 
     return slice_map
 
-def _get_cutoff_map(**kwargs):
+def _get_cutoff_map(
+        **kwargs
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    
     n_pairs = kwargs['n_pairs']
     p_cross = kwargs['p_cross']
     H = Rubix.shape[1]
@@ -33,6 +35,12 @@ def _get_cutoff_map(**kwargs):
     cuts = torch.randint(0, H - 1, (n_pairs, num_blocks))
 
     return flags, cuts
+
+def _get_cube_map(
+    **kwargs
+) -> torch.Tensor:
+    """Takes the survivors of each of the cubes, and maps them to a target cube."""    
+    pass
 
 def block_crossover(    
     cube: torch.Tensor,
@@ -105,11 +113,16 @@ def cutoff_crossover(
 
     return parents
 
-# Operator Mapping and Dispatch
-CROSSOVER_STRATEGIES = {
-    'block_crossover': (block_crossover, _get_slice_map),
-    'cutoff_crossover': (cutoff_crossover, _get_cutoff_map),
-}
+def cube_crossover(
+    cube_1: torch.Tensor,
+    cube_2: torch.Tensor,
+    mapping # contains a list of list of tuples [(original_cube, index_of, target_cube)]
+):
+    """ 
+    Takes two cubes and a mapping as input. Applies the mapping to the cubes returning two new cubes
+    corresponding to elements of the previous cubes.
+    """
+    pass
 
 def apply_crossover(
     cube: torch.Tensor,
@@ -133,4 +146,10 @@ def apply_crossover(
     )
     
     return operator(cube, mapping)
-    
+
+# Operator Mapping and Dispatch
+CROSSOVER_STRATEGIES = {
+    'block_crossover': (block_crossover, _get_slice_map),
+    'cutoff_crossover': (cutoff_crossover, _get_cutoff_map),
+    'cube_crossover': (cube_crossover, _get_cube_map)
+}

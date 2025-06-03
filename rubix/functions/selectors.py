@@ -4,7 +4,7 @@ from typing import List, Any
 def _select_one(
     fitnesses: torch.Tensor,
     valid: torch.Tensor,
-    tournament_type: str,
+    selection_type: str,
     size: int
 ) -> int:
     
@@ -15,7 +15,7 @@ def _select_one(
     sampled_list = valid[torch.randperm(len(valid))[:size]].tolist()
     valid_list = valid.tolist()
 
-    if tournament_type == 'rank':
+    if selection_type == 'rank':
         valid_fitnesses = fitnesses[valid]
         _, sorted_idx = torch.sort(valid_fitnesses)
         ranks = torch.zeros_like(valid_fitnesses, dtype=torch.long)
@@ -26,7 +26,7 @@ def _select_one(
         )
         return competitors[0]
 
-    elif tournament_type == 'fitness':
+    elif selection_type == 'fitness':
         competitors = sorted(sampled_list, key=lambda i: fitnesses[i].item())
         return competitors[0]
 
@@ -34,6 +34,7 @@ def _select_one(
         comp_fitnesses = fitnesses[torch.tensor(sampled_list)]
         probs = torch.softmax(-comp_fitnesses, dim=0)
         selected_idx = torch.multinomial(probs, 1).item()
+
         return sampled_list[selected_idx]
 
 def tournament(
@@ -46,7 +47,7 @@ def tournament(
     """
 
     n = kwargs['n']
-    tournament_type = kwargs['vs_type']
+    tournament_type = kwargs['selection_method']
     size = kwargs['vs_size']
 
     valid = (fitnesses != float('inf')).nonzero(as_tuple=True)[0]
@@ -63,7 +64,7 @@ def poison(
     """
 
     threshold = kwargs['poison_percentile']
-    sharpness = kwargs.get('poison_sharpness', 1.0)  # default sharpness
+    sharpness = kwargs.get('poison_sharpness', 1.0)
 
     diff = fitnesses - threshold
     death_probs = 1 / (1 + torch.exp(-sharpness * diff))
@@ -71,7 +72,7 @@ def poison(
     survive_mask = torch.rand_like(death_probs) > death_probs
     survivors = survive_mask.nonzero(as_tuple=True)[0]
 
-    return survivors.tolist()
+    return [_select_one(fitnesses, survivors, selection_type="probabilistic", survivors.size()) for _ in range(n)]
 
 def identity(
     fitnesses: torch.Tensor
@@ -83,12 +84,6 @@ def identity(
 
     return torch.arange(fitnesses.size(0)).tolist()
 
-SELECTORS = {
-    "poison": poison,
-    "tournament": tournament,
-    "identity": identity
-}
-
 def apply_selector(
     *args: Any, 
     **kwargs: Any
@@ -98,3 +93,9 @@ def apply_selector(
     Applies the provided selection function to given arguments.
     """
     return SELECTORS[kwargs['select_type']](*args, **kwargs)
+
+SELECTORS = {
+    "poison": poison,
+    "tournament": tournament,
+    "identity": identity
+}
